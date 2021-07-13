@@ -1,5 +1,5 @@
 import { appActions } from '../constants/appAction';
-import { REQUEST, SUCCESS, FAILURE } from '../constants/action-type';
+import { REQUEST, SUCCESS, FAILED } from '../constants/action-type';
 
 const initialState = {
   isLoading: false,
@@ -58,7 +58,7 @@ const reducer = (state = initialState, action) => {
         submitAnswerFailed: false,
         enrollClassSuccess: false,
       };
-    case FAILURE(appActions.SUBMIT_ANSWER):
+    case FAILED(appActions.SUBMIT_ANSWER):
       return {
         ...state,
         submitAnswerFailed: true,
@@ -74,12 +74,12 @@ const reducer = (state = initialState, action) => {
         ...state,
         topicList: action.data,
       };
-    case FAILURE(appActions.GET_USER_BY_EMAIL):
+    case FAILED(appActions.GET_USER_BY_EMAIL):
       return {
         ...state,
         getMeFailed: true,
       };
-    case FAILURE(appActions.LOGIN):
+    case FAILED(appActions.LOGIN):
       return {
         ...state,
         isLoading: false,
@@ -90,7 +90,7 @@ const reducer = (state = initialState, action) => {
         ...state,
         loginError: undefined,
       };
-    case FAILURE(appActions.GET_USER):
+    case FAILED(appActions.GET_USER):
       return {
         ...state,
         getMeFailed: action.data,
@@ -110,7 +110,7 @@ const reducer = (state = initialState, action) => {
         ...state,
         enrollClassSuccess: true,
       };
-    case FAILURE(appActions.GET_PROBLEM_DETAIL):
+    case FAILED(appActions.GET_PROBLEM_DETAIL):
       return {
         ...state,
         problemDetail: undefined,

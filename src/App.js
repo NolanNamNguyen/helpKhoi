@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { compose } from 'redux';
 // import LoadingIndicator from './components/LoadingIndicator';
 import AppRoutes from './router/appRoutes';
-import GlobalAlert from './components/GlobalAlert';
 import './App.scss';
 import 'font-awesome/css/font-awesome.min.css';
 

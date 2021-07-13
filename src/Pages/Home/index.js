@@ -31,18 +31,22 @@ const HomePage = ({ handleGetDeviceDetail, homeReducer }) => {
   };
 
   const approve = () => {
+    // eslint-disable-next-line no-console
     console.log('you');
   };
 
   const clearResult = () => {
+    // eslint-disable-next-line no-console
     console.log('gotta be');
   };
 
   const prev = () => {
+    // eslint-disable-next-line no-console
     console.log('fucking ');
   };
 
   const next = () => {
+    // eslint-disable-next-line no-console
     console.log('kidding me');
   };
 
