@@ -1,0 +1,35 @@
+.pageContainer {
+  width: 100vw;
+  height: 100vh;
+  overflow-x: hidden;
+}
+
+.avatar {
+  border-radius: 50%;
+  overflow: hidden;
+  img {
+    width: 200px;
+    height: 200px;
+  }
+}
+
+.info-section {
+  background-color: #fafbfb;
+}
+
+.language-font {
+  font-size: 23px;
+  font-weight: 500;
+}
+
+.languages-container {
+  border-top: solid 1px rgb(226, 222, 222);
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.detail-language-contain {
+  background-color: #f5f6f7;
+}

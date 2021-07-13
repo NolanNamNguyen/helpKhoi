@@ -1,0 +1,10 @@
+@import '~bootstrap/dist/css/bootstrap.min.css';
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+@import '~bootstrap/scss/mixins';
+
+@import './base/sizing';
+@import '~rc-tabs/assets/index.css';
+@import '~antd/dist/antd.css';
+@import './common';
+@import 'pages/home';
