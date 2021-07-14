@@ -51,11 +51,11 @@ const HomePage = ({ handleGetDeviceDetail, homeReducer }) => {
   };
 
   return (
-    <div className="d-flex justify-content-around widht-100-per">
-      <div className="width-28-per">
-        <img src={img1} alt=" not found" />
+    <div className="d-flex align-items-center justify-content-around height-100-per widht-100-per">
+      <div className="d-flex width-28-per max-height-by-px-500">
+        <img className="width-100-per" src={img1} alt=" not found" />
       </div>
-      <div className="width-10-per height-by-px-350 justify-content-center d-flex flex-column">
+      <div className="width-10-per height-100-per min-width-by-px-90 justify-content-center d-flex flex-column">
         <Button
           onMouseDown={handleSwitch}
           onMouseUp={handleRelease}
@@ -78,8 +78,8 @@ const HomePage = ({ handleGetDeviceDetail, homeReducer }) => {
           Next
         </Button>
       </div>
-      <div className="width-28-per">
-        <img src={img2} alt=" not found" />
+      <div className="d-flex width-28-per max-height-by-px-500">
+        <img className="width-100-per" src={img2} alt=" not found" />
       </div>
     </div>
   );
