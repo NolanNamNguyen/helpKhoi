@@ -15,6 +15,9 @@ const HomePage = ({ handleGetDeviceDetail, homeReducer }) => {
   const [currentLink, setCurrentLink] = useState('Home');
   useEffect(() => {
     handleGetDeviceDetail();
+    setInterval(() => {
+      handleGetDeviceDetail();
+    }, 5000);
   }, []);
 
   useEffect(() => {
@@ -60,16 +63,16 @@ const HomePage = ({ handleGetDeviceDetail, homeReducer }) => {
 
   return (
     <div className="width-100-per d-flex flex-column height-100-per">
-      <Menu onClick={handleClick} selectedKeys={[currentLink]} mode="horizontal">
+      <Menu
+        onClick={handleClick}
+        selectedKeys={[currentLink]}
+        mode="horizontal"
+      >
         <Menu.Item key="Home">Files</Menu.Item>
         <Menu.Item key="Edit">Edit</Menu.Item>
         <Menu.Item key="View">View</Menu.Item>
         <Menu.Item key="Help">
-          <NavLink
-            to={AppRoutes.HOME}
-          >
-            Help
-          </NavLink>
+          <NavLink to={AppRoutes.HOME}>Help</NavLink>
         </Menu.Item>
       </Menu>
       <div className="d-flex align-items-center justify-content-around height-100-per widht-100-per">
