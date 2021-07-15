@@ -59,7 +59,7 @@ const HomePage = ({ handleGetDeviceDetail, homeReducer }) => {
   };
 
   return (
-    <div className="width-100-per">
+    <div className="width-100-per d-flex flex-column height-100-per">
       <Menu onClick={handleClick} selectedKeys={[currentLink]} mode="horizontal">
         <Menu.Item key="Home">Files</Menu.Item>
         <Menu.Item key="Edit">Edit</Menu.Item>
@@ -73,7 +73,7 @@ const HomePage = ({ handleGetDeviceDetail, homeReducer }) => {
         </Menu.Item>
       </Menu>
       <div className="d-flex align-items-center justify-content-around height-100-per widht-100-per">
-        <div className="d-flex width-28-per max-height-by-px-500">
+        <div className="d-flex width-41-per">
           <img className="width-100-per" src={img1} alt=" not found" />
         </div>
         <div className="width-10-per height-100-per min-width-by-px-90 justify-content-center d-flex flex-column">
@@ -119,7 +119,7 @@ const HomePage = ({ handleGetDeviceDetail, homeReducer }) => {
             Next
           </Button>
         </div>
-        <div className="d-flex width-28-per max-height-by-px-500">
+        <div className="d-flex width-41-per">
           <img className="width-100-per" src={img2} alt=" not found" />
         </div>
       </div>
