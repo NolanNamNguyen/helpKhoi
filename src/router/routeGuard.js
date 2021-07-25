@@ -1,28 +1,19 @@
 import React, { useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { LOGIN } from './router';
-import { getUserByEmail } from '../redux/actions/appAction';
+import { ACCESS_DENIED } from './router';
+import { LOCAL_STORAGE } from '../constants/common';
 
 const RouteGuard = ({ component: GuardedComponent }) => {
-  const currentUserDetail = useSelector(
-    (state) => state.appReducers.currentUserDetail,
-  );
-  const getMeFailed = useSelector((state) => state.appReducers.getMeFailed);
+  const currentSessionId = localStorage.getItem(LOCAL_STORAGE.session_id);
   const history = useHistory();
-  const dispatch = useDispatch();
+
   useEffect(() => {
-    !sessionStorage.getItem('email') ||
-      (!sessionStorage.getItem('mytoken') && history.push(LOGIN));
-    !currentUserDetail &&
-      dispatch(getUserByEmail({ email: sessionStorage.getItem('email') }));
+    if (!currentSessionId || currentSessionId === 'undefined') {
+      history.push(ACCESS_DENIED);
+    }
   }, []);
 
-  useEffect(() => {
-    getMeFailed && history.push(LOGIN);
-  }, [getMeFailed]);
-
-  return currentUserDetail ? <GuardedComponent /> : null;
+  return currentSessionId ? <GuardedComponent /> : null;
 };
 
 export default RouteGuard;

@@ -147,6 +147,24 @@
   }
 }
 
+@for $i from -100 through 100 {
+  .ps-l-#{$i}-per {
+    left: percentage($i/100);
+  }
+  .ps-r-#{$i}-per {
+    right: percentage($i/100);
+
+  }
+  .ps-b-#{$i}-per {
+    bottom: percentage($i/100);
+
+  }
+  .ps-t-#{$i}-per {
+    top: percentage($i/100);
+
+  }
+}
+
 //z-index
 @for $i from 1 through 100 {
   .z-index-#{$i} {

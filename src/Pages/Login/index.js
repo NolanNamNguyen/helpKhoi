@@ -1,87 +1,117 @@
-import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
-import {
-  login,
-  getUserByEmail,
-  submitAnswer,
-} from '../../redux/actions/appAction';
-import { HOME } from '../../router/router';
+import { useForm, useFormState } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import { Form, Input, Button, Select, Checkbox } from 'antd';
 
-function Login({ handleLogin, appReducers }) {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const history = useHistory();
-  const { currentUser } = appReducers;
+import FieldError from '../../components/FieldError';
+import { login, getMachineId } from '../../redux/actions/homeAction';
+import { APP_ROLE } from '../../constants/common';
+
+const Login = ({ handleLogin, handleGetListMachine, homeReducer }) => {
+  const { listMachine, loadingMachineList } = homeReducer;
+  const [machine, setMachine] = useState('');
+  const [selectedMachineError, setSelectedMachineError] = useState(false);
+  const [roleCheck, setRoleCheck] = useState(true);
 
   useEffect(() => {
-    if (currentUser) {
-      history.push(HOME);
-    }
-  }, [currentUser]);
+    handleGetListMachine();
+  }, []);
 
-  const loginBtn = () => {
-    handleLogin({ username, password });
+  useEffect(() => {
+    machine && setSelectedMachineError(false);
+  }, [machine]);
+
+  const { Option } = Select;
+  const formValidateSchema = yup.object().shape({
+    password: yup.string().required('Please input password'),
+    selectedMachine: yup
+      .mixed()
+      .test('testSelectedMachine', 'Please select the machine', () => {
+        if (machine) {
+          setSelectedMachineError(false);
+          return true;
+        }
+        setSelectedMachineError(true);
+        return false;
+      }),
+  });
+
+  const { register, handleSubmit, control } = useForm({
+    resolver: yupResolver(formValidateSchema),
+  });
+
+  const { errors } = useFormState({
+    control,
+  });
+
+  const onCheck = (event) => {
+    setRoleCheck(event.target.checked);
   };
 
-  // const formSubmitAnswer = (data) => {
-  //   const params = {
-  //     ...data,
-  //     compilerId: 56,
-  //     compilerVersionId: 5,
-  //   };
-  //   handleSubmitAnswer(params);
-  // };
+  const submitLogin = (data) => {
+    handleLogin({
+      mid: machine,
+      pswd: data.password,
+      role: roleCheck ? APP_ROLE.SUPERVISOR : APP_ROLE.MANAGER,
+    });
+  };
 
   return (
-    <div className="App ">
-      <br />
-      <br />
-      <h1>Please login</h1>
-      <br />
-      <br />
-      <div className="mb-3">
-        <label htmlFor="username" className="form-label">
-          Email
-        </label>
-        <input
-          type="text"
-          className="form-control"
-          id="username"
-          placeholder="Please enter your email"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-      </div>
-      <div className="mb-3">
-        <label htmlFor="password" className="form-label">
-          Password
-        </label>
-        <input
-          type="password"
-          className="form-control"
-          id="password"
-          placeholder="Please enter your password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </div>
-      <button type="button" onClick={loginBtn} className="btn btn-primary">
-        Login
-      </button>
+    <div className="d-flex flex-column width-100-per align-items-center justify-content-center height-100-per login-form-container">
+      <Form className="login-form p-a-20 d-flex flex-column align-items-center" onFinish={handleSubmit(submitLogin)}>
+        <h3 className="m-b-38">High quality chick trader community</h3>
+        <Form.Item className="width-70-per">
+          <Select
+            className={`${selectedMachineError ? 'error-select' : ''}`}
+            placeholder="Select a machine"
+            onChange={(data) => {
+              setMachine(data);
+            }}
+            allowClear
+            loading={loadingMachineList}
+          >
+            {listMachine?.map((machineItem) => (
+              <Option value={machineItem.id}>{machineItem.name}</Option>
+            ))}
+          </Select>
+          <FieldError
+            message={selectedMachineError && 'Please selecte machine'}
+          />
+        </Form.Item>
+
+        <Form.Item className="width-70-per" label="Password">
+          <Input
+            className={`${errors?.password?.message ? 'error-field' : ''}`}
+            type="password"
+            {...register('password')}
+          />
+          <FieldError message={errors?.password?.message} />
+        </Form.Item>
+        <Form.Item className="width-70-per">
+          <Checkbox defaultChecked onChange={onCheck}>
+            Login as supervisor
+          </Checkbox>
+        </Form.Item>
+        <Form.Item className="justify-content-center">
+          <Button type="primary" htmlType="submit">
+            Login
+          </Button>
+        </Form.Item>
+      </Form>
     </div>
   );
-}
+};
 
 const mapStateToProps = (state) => ({
-  appReducers: state.appReducers,
+  homeReducer: state.homeReducer,
 });
 
 const mapDispatchToProps = (dispatch) => ({
   handleLogin: (params) => dispatch(login(params)),
-  handleGetUserDetail: (params) => dispatch(getUserByEmail(params)),
-  handleSubmitAnswer: (params) => dispatch(submitAnswer(params)),
+  handleGetListMachine: () => dispatch(getMachineId()),
 });
 
 const withConnect = connect(mapStateToProps, mapDispatchToProps);

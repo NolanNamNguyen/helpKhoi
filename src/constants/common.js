@@ -10,4 +10,13 @@ const LEVEL_TITLE = {
   ADVANCE: 'Corner of 0s and 1s',
 };
 
-export { PROBLEM_LEVEL, LEVEL_TITLE };
+const APP_ROLE = {
+  SUPERVISOR: 'supervisor',
+  MANAGER: 'manager',
+};
+
+const LOCAL_STORAGE = {
+  session_id: 'session_id',
+};
+
+export { PROBLEM_LEVEL, LEVEL_TITLE, APP_ROLE, LOCAL_STORAGE };
