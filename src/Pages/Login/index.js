@@ -5,18 +5,27 @@ import { useForm, useFormState } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Form, Input, Button, Select, Checkbox } from 'antd';
+import { useHistory } from 'react-router';
 
+import { HOME } from '../../router/router';
 import FieldError from '../../components/FieldError';
 import { login, getMachineId } from '../../redux/actions/homeAction';
-import { APP_ROLE } from '../../constants/common';
+import { APP_ROLE, LOCAL_STORAGE } from '../../constants/common';
 
 const Login = ({ handleLogin, handleGetListMachine, homeReducer }) => {
   const { listMachine, loadingMachineList } = homeReducer;
   const [machine, setMachine] = useState('');
+  const history = useHistory();
   const [selectedMachineError, setSelectedMachineError] = useState(false);
   const [roleCheck, setRoleCheck] = useState(true);
 
   useEffect(() => {
+    if (
+      localStorage.getItem(LOCAL_STORAGE.session_id) &&
+      localStorage.getItem(LOCAL_STORAGE.session_id) !== 'undefined'
+    ) {
+      history.push(HOME);
+    }
     handleGetListMachine();
   }, []);
 
@@ -52,16 +61,24 @@ const Login = ({ handleLogin, handleGetListMachine, homeReducer }) => {
   };
 
   const submitLogin = (data) => {
-    handleLogin({
-      mid: machine,
-      pswd: data.password,
-      role: roleCheck ? APP_ROLE.SUPERVISOR : APP_ROLE.MANAGER,
-    });
+    handleLogin(
+      {
+        mid: machine,
+        pswd: data.password,
+        role: roleCheck ? APP_ROLE.SUPERVISOR : APP_ROLE.MANAGER,
+      },
+      () => {
+        history.push(HOME);
+      },
+    );
   };
 
   return (
     <div className="d-flex flex-column width-100-per align-items-center justify-content-center height-100-per login-form-container">
-      <Form className="login-form p-a-20 d-flex flex-column align-items-center" onFinish={handleSubmit(submitLogin)}>
+      <Form
+        className="login-form p-a-20 d-flex flex-column align-items-center"
+        onFinish={handleSubmit(submitLogin)}
+      >
         <h3 className="m-b-38">High quality chick trader community</h3>
         <Form.Item className="width-70-per">
           <Select
@@ -74,7 +91,9 @@ const Login = ({ handleLogin, handleGetListMachine, homeReducer }) => {
             loading={loadingMachineList}
           >
             {listMachine?.map((machineItem, index) => (
-              <Option key={index} value={machineItem.id}>{machineItem.name}</Option>
+              <Option key={index} value={machineItem.id}>
+                {machineItem.name}
+              </Option>
             ))}
           </Select>
           <FieldError
@@ -110,7 +129,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  handleLogin: (params) => dispatch(login(params)),
+  handleLogin: (params, callback) => dispatch(login(params, callback)),
   handleGetListMachine: () => dispatch(getMachineId()),
 });
 

@@ -34,10 +34,11 @@ function* getMachineId() {
 }
 
 function* login(data) {
-  const { params } = data;
+  const { params, callback } = data;
   try {
     const response = yield Api.post('machine/login/', params);
     localStorage.setItem(LOCAL_STORAGE.session_id, response.data.sid);
+    callback && callback();
     yield put(loginSuccess(response.data || ''));
   } catch (error) {
     yield put(loginlFailed(error.response.data || ''));

@@ -16,9 +16,10 @@ export const getDeviceDetailFailed = (error) => ({
   error,
 });
 
-export const login = (params) => ({
+export const login = (params, callback) => ({
   type: REQUEST(homeActions.LOGIN),
   params,
+  callback,
 });
 
 export const loginSuccess = (data) => ({
