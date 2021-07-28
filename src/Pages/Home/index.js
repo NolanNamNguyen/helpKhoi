@@ -6,7 +6,7 @@ import { compose } from 'redux';
 import { Menu } from 'antd';
 import { useHistory } from 'react-router';
 import * as AppRoutes from '../../router/router';
-import { LOCAL_STORAGE } from '../../constants/common';
+import { LOCAL_STORAGE, IMAGE_ENDPOINT } from '../../constants/common';
 import {
   getDeviceDetail,
   logout,
@@ -20,6 +20,7 @@ const HomePage = ({
   handleDecline,
 }) => {
   const { images, fetchImageFailed } = homeReducer;
+  const [imageIndex, setImageIndex] = useState(undefined);
   const history = useHistory();
   const [img1, setImg1] = useState('/assets/cat.jpg');
   const [img2, setImg2] = useState('/assets/cat.jpg');
@@ -40,19 +41,26 @@ const HomePage = ({
 
   useEffect(() => {
     if (images) {
-      setImg1(images[0]);
-      setImg2(images[1]);
+      setImageIndex(images.length - 1);
+      console.log('aa',images);
     }
   }, [images]);
 
+  useEffect(() => {
+   if(imageIndex){
+    setImg1(images[imageIndex].side_predicted_path);
+    setImg2(images[imageIndex].up_predicted_path);
+   }
+  }, [imageIndex])
+
   const handleSwitch = () => {
-    setImg1(images[2]);
-    setImg2(images[3]);
+    setImg1(images[imageIndex].side_image_path);
+    setImg2(images[imageIndex].up_image_path);
   };
 
   const handleRelease = () => {
-    setImg1(images[0]);
-    setImg2(images[1]);
+    setImg1(images[imageIndex].side_predicted_path);
+    setImg2(images[imageIndex].up_predicted_path);
   };
 
   const approve = () => {
@@ -75,8 +83,7 @@ const HomePage = ({
   };
 
   const next = () => {
-    // eslint-disable-next-line no-console
-    console.log('kidding me');
+    setImageIndex(imageIndex + 1 <= images.length - 1 && imageIndex + 1)
   };
 
   const handleClick = (data) => {
@@ -108,7 +115,7 @@ const HomePage = ({
       </Menu>
       <div className="d-flex align-items-center justify-content-around height-100-per widht-100-per">
         <div className="d-flex width-41-per">
-          <img className="width-100-per" src={img1} alt=" not found" />
+          <img className="width-100-per" src={`${IMAGE_ENDPOINT}${img1}`} alt=" not found" />
         </div>
         <div className="width-10-per height-100-per min-width-by-px-90 justify-content-center d-flex flex-column">
           <Button
@@ -118,15 +125,6 @@ const HomePage = ({
             color="danger"
           >
             Decline
-          </Button>
-          <Button
-            onMouseDown={handleSwitch}
-            onMouseUp={handleRelease}
-            type="button"
-            className="m-b-20"
-            color="primary"
-          >
-            Switch
           </Button>
           <Button
             onClick={approve}
@@ -141,6 +139,15 @@ const HomePage = ({
             type="button"
             className="m-b-20"
             color="info"
+          >
+            Switch
+          </Button>
+          <Button
+            onMouseDown={handleSwitch}
+            onMouseUp={handleRelease}
+            type="button"
+            className="m-b-20"
+            color="primary"
           >
             Clear Result
           </Button>
@@ -162,7 +169,7 @@ const HomePage = ({
           </Button>
         </div>
         <div className="d-flex width-41-per">
-          <img className="width-100-per" src={img2} alt=" not found" />
+          <img className="width-100-per" src={`${IMAGE_ENDPOINT}${img2}`} alt=" not found" />
         </div>
       </div>
     </div>

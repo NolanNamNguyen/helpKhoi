@@ -17,11 +17,12 @@ import Api from '../../core/api/apiConfig';
 
 function* getDeviceDetail() {
   try {
-    const response = yield Api.get('84e4c7b8-1a91-4817-b938-d9935a6b4f00');
+    const response = yield Api.post('machine/fetch_images/', {sid: localStorage.getItem(LOCAL_STORAGE.session_id), fetch_all: 1});
+    console.log(response);
     yield put(getDeviceDetailSuccess(response.data.images));
   } catch (error) {
     yield put(getDeviceDetailFailed(error?.response?.data || 'Error'));
-  }
+  } 
 }
 
 function* getMachineId() {

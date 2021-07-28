@@ -16,7 +16,9 @@ const APP_ROLE = {
 };
 
 const LOCAL_STORAGE = {
-  session_id: 'session_id',
+  session_id: 'sessionId',
 };
 
-export { PROBLEM_LEVEL, LEVEL_TITLE, APP_ROLE, LOCAL_STORAGE };
+const IMAGE_ENDPOINT = process.env.REACT_APP_ENDPOINT_IMAGE;
+
+export { PROBLEM_LEVEL, LEVEL_TITLE, APP_ROLE, LOCAL_STORAGE, IMAGE_ENDPOINT };

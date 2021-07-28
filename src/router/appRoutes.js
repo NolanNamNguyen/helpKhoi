@@ -14,18 +14,18 @@ const ROUTES = [
     component: <Login />,
     title: 'Login',
   },
-  {
-    path: AppRoutes.HOME,
-    exact: true,
-    component: <RouteGuard component={Home} />,
-    title: 'Home',
-  },
   // {
   //   path: AppRoutes.HOME,
   //   exact: true,
-  //   component: <Home />,
+  //   component: <RouteGuard component={Home} />,
   //   title: 'Home',
   // },
+  {
+    path: AppRoutes.HOME,
+    exact: true,
+    component: <Home />,
+    title: 'Home',
+  },
   {
     path: AppRoutes.ACCESS_DENIED,
     exact: true,
