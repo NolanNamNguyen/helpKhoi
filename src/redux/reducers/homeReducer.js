@@ -56,13 +56,13 @@ const reducer = (state = initialState, action) => {
     case SUCCESS(homeActions.LOGIN):
       return {
         ...state,
-        listMachine: action.data,
+        // listMachine: action.data,
         loadingMachineList: false,
       };
     case FAILED(homeActions.LOGIN):
       return {
         ...state,
-        listMachine: undefined,
+        // listMachine: undefined,
         loadingMachineList: false,
       };
     default:

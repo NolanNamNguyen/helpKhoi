@@ -26,8 +26,8 @@ function* getDeviceDetail() {
 
 function* getMachineId() {
   try {
-    const response = yield Api.get('get_machines');
-    yield put(getMachineIdSuccess(response.data));
+    const response = yield Api.get('machine/get_machines/');
+    yield put(getMachineIdSuccess(response.data.machines));
   } catch (error) {
     yield put(getMachineIdFailed(error?.response?.data || 'Error'));
   }
@@ -36,7 +36,7 @@ function* getMachineId() {
 function* login(data) {
   const { params } = data;
   try {
-    const response = yield Api.post('login', params);
+    const response = yield Api.post('machine/login/', params);
     localStorage.setItem(LOCAL_STORAGE.session_id, response.data.sid);
     yield put(loginSuccess(response.data || ''));
   } catch (error) {

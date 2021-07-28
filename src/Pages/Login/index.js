@@ -73,8 +73,8 @@ const Login = ({ handleLogin, handleGetListMachine, homeReducer }) => {
             allowClear
             loading={loadingMachineList}
           >
-            {listMachine?.map((machineItem) => (
-              <Option value={machineItem.id}>{machineItem.name}</Option>
+            {listMachine?.map((machineItem, index) => (
+              <Option key={index} value={machineItem.id}>{machineItem.name}</Option>
             ))}
           </Select>
           <FieldError
