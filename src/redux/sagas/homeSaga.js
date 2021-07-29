@@ -15,14 +15,14 @@ import { LOCAL_STORAGE } from '../../constants/common';
 import { REQUEST } from '../constants/action-type';
 import Api from '../../core/api/apiConfig';
 
-function* getDeviceDetail() {
+function* getDeviceDetail(data) {
+
   try {
-    const response = yield Api.post('machine/fetch_images/', {sid: localStorage.getItem(LOCAL_STORAGE.session_id), fetch_all: 1});
-    console.log(response);
+    const response = yield Api.post('machine/fetch_images/', data.params);
     yield put(getDeviceDetailSuccess(response.data.images));
   } catch (error) {
     yield put(getDeviceDetailFailed(error?.response?.data || 'Error'));
-  } 
+  }
 }
 
 function* getMachineId() {

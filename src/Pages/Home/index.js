@@ -26,34 +26,40 @@ const HomePage = ({
   const [img2, setImg2] = useState('/assets/cat.jpg');
   const [currentLink, setCurrentLink] = useState('Home');
   useEffect(() => {
-    handleGetDeviceDetail();
+    handleGetDeviceDetail({
+      sid: localStorage.getItem(LOCAL_STORAGE.session_id),
+      fetch_all: 1,
+    });
     setInterval(() => {
-      handleGetDeviceDetail();
+      handleGetDeviceDetail({
+        sid: localStorage.getItem(LOCAL_STORAGE.session_id),
+        fetch_all: 0,
+      });
     }, 5000);
   }, []);
 
   useEffect(() => {
     if (fetchImageFailed) {
-      localStorage.removeItem(LOCAL_STORAGE.session_id);
-      history.push(AppRoutes.ACCESS_DENIED);
+      // localStorage.removeItem(LOCAL_STORAGE.session_id);
+      // history.push(AppRoutes.ACCESS_DENIED);
     }
   }, [fetchImageFailed]);
 
   useEffect(() => {
     if (images) {
       setImageIndex(images.length - 1);
-      console.log('aa',images);
+      console.log('aa', images);
     }
   }, [images]);
 
   useEffect(() => {
-   if(imageIndex){
-    setImg1(images[imageIndex].side_predicted_path);
-    setImg2(images[imageIndex].up_predicted_path);
-   }
-  }, [imageIndex])
+    if (imageIndex) {
+      setImg1(images[imageIndex].side_predicted_path);
+      setImg2(images[imageIndex].up_predicted_path);
+    }
+  }, [imageIndex]);
 
-  const handleSwitch = () => {
+  const clearResult = () => {
     setImg1(images[imageIndex].side_image_path);
     setImg2(images[imageIndex].up_image_path);
   };
@@ -72,18 +78,17 @@ const HomePage = ({
     handleDecline(params);
   };
 
-  const clearResult = () => {
+  const handleSwitch = () => {
     // eslint-disable-next-line no-console
     console.log('gotta be');
   };
 
   const prev = () => {
-    // eslint-disable-next-line no-console
-    console.log('fucking ');
+    setImageIndex(imageIndex - 1 > 0 && imageIndex + 1);
   };
 
   const next = () => {
-    setImageIndex(imageIndex + 1 <= images.length - 1 && imageIndex + 1)
+    setImageIndex(imageIndex + 1 <= images.length - 1 && imageIndex + 1);
   };
 
   const handleClick = (data) => {
@@ -115,7 +120,11 @@ const HomePage = ({
       </Menu>
       <div className="d-flex align-items-center justify-content-around height-100-per widht-100-per">
         <div className="d-flex width-41-per">
-          <img className="width-100-per" src={`${IMAGE_ENDPOINT}${img1}`} alt=" not found" />
+          <img
+            className="width-100-per"
+            src={`${IMAGE_ENDPOINT}${img1}`}
+            alt=" not found"
+          />
         </div>
         <div className="width-10-per height-100-per min-width-by-px-90 justify-content-center d-flex flex-column">
           <Button
@@ -169,7 +178,11 @@ const HomePage = ({
           </Button>
         </div>
         <div className="d-flex width-41-per">
-          <img className="width-100-per" src={`${IMAGE_ENDPOINT}${img2}`} alt=" not found" />
+          <img
+            className="width-100-per"
+            src={`${IMAGE_ENDPOINT}${img2}`}
+            alt=" not found"
+          />
         </div>
       </div>
     </div>
