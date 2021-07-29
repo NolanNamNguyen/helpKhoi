@@ -32,9 +32,10 @@ export const loginlFailed = (error) => ({
   error,
 });
 
-export const logout = (params) => ({
+export const logout = (params, callback) => ({
   type: REQUEST(homeActions.LOGOUT),
   params,
+  callback,
 });
 
 export const getMachineId = (params) => ({
@@ -79,5 +80,20 @@ export const markDangerousSuccess = (data) => ({
 
 export const markDangerousFailed = (error) => ({
   type: FAILED(homeActions.MARK_DANGEROUS),
+  error,
+});
+
+export const createSnapShot = (params) => ({
+  type: REQUEST(homeActions.CREATE_SNAPSHOT),
+  params,
+});
+
+export const createSnapShotSuccess = (data) => ({
+  type: SUCCESS(homeActions.CREATE_SNAPSHOT),
+  data,
+});
+
+export const createSnapShotFailed = (error) => ({
+  type: FAILED(homeActions.CREATE_SNAPSHOT),
   error,
 });

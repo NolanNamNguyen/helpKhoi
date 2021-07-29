@@ -11,6 +11,7 @@ import {
   getDeviceDetail,
   logout,
   markDangerous,
+  createSnapShot,
 } from '../../redux/actions/homeAction';
 
 const HomePage = ({
@@ -18,7 +19,9 @@ const HomePage = ({
   homeReducer,
   handleLogout,
   handleDecline,
+  handleCreateSnapShot,
 }) => {
+  const { SubMenu } = Menu;
   const { images, fetchImageFailed } = homeReducer;
   const [imageIndex, setImageIndex] = useState(undefined);
   const history = useHistory();
@@ -31,7 +34,7 @@ const HomePage = ({
       fetch_all: 1,
     });
     setInterval(() => {
-      handleGetDeviceDetail({
+      const imageInterval = handleGetDeviceDetail({
         sid: localStorage.getItem(LOCAL_STORAGE.session_id),
         fetch_all: 0,
       });
@@ -40,8 +43,8 @@ const HomePage = ({
 
   useEffect(() => {
     if (fetchImageFailed) {
-      // localStorage.removeItem(LOCAL_STORAGE.session_id);
-      // history.push(AppRoutes.ACCESS_DENIED);
+      localStorage.removeItem(LOCAL_STORAGE.session_id);
+      history.push(AppRoutes.ACCESS_DENIED);
     }
   }, [fetchImageFailed]);
 
@@ -50,32 +53,32 @@ const HomePage = ({
       setImageIndex(images.length - 1);
       console.log('aa', images);
     }
-  }, [images]);
+  }, [images?.length]);
 
   useEffect(() => {
     if (imageIndex) {
-      setImg1(images[imageIndex].side_predicted_path);
-      setImg2(images[imageIndex].up_predicted_path);
+      setImg1(images[imageIndex]?.side_predicted_path);
+      setImg2(images[imageIndex]?.up_predicted_path);
     }
   }, [imageIndex]);
 
   const clearResult = () => {
-    setImg1(images[imageIndex].side_image_path);
-    setImg2(images[imageIndex].up_image_path);
+    setImg1(images[imageIndex]?.side_image_path);
+    setImg2(images[imageIndex]?.up_image_path);
   };
 
   const handleRelease = () => {
-    setImg1(images[imageIndex].side_predicted_path);
-    setImg2(images[imageIndex].up_predicted_path);
+    console.log('aaa');
+    setImg1(images[imageIndex]?.side_predicted_path);
+    setImg2(images[imageIndex]?.up_predicted_path);
   };
 
   const approve = () => {
-    // eslint-disable-next-line no-console
-    console.log('you');
+    handleDecline({ iid: images[imageIndex].pk, sid: localStorage.getItem(LOCAL_STORAGE.session_id), danger: 0 });
   };
 
-  const decline = (params) => {
-    handleDecline(params);
+  const decline = () => {
+    handleDecline({ iid: images[imageIndex].pk, sid: localStorage.getItem(LOCAL_STORAGE.session_id), danger: 1 });
   };
 
   const handleSwitch = () => {
@@ -94,9 +97,11 @@ const HomePage = ({
   const handleClick = (data) => {
     setCurrentLink(data.key);
     if (data.key === 'Logout') {
-      handleLogout(localStorage.getItem(LOCAL_STORAGE.session_id));
-      history.push(AppRoutes.LOGIN);
+      handleLogout(localStorage.getItem(LOCAL_STORAGE.session_id), () => {
+        history.push(AppRoutes.LOGIN);
+      });
     }
+
   };
 
   return (
@@ -107,7 +112,12 @@ const HomePage = ({
         mode="horizontal"
         className="position-relative"
       >
-        <Menu.Item key="Home">Files</Menu.Item>
+        <SubMenu key="Home" title="Files">
+          <Menu.Item key="setting:1">Load all Images</Menu.Item>
+          <Menu.Item key="setting:2">Load only new</Menu.Item>
+          <Menu.Item onClick={() => handleCreateSnapShot({ sid: localStorage.getItem(LOCAL_STORAGE.session_id) })} key="create_snap_shot">Create data snapshot</Menu.Item>
+          <Menu.Item key="setting:4">Logout</Menu.Item>
+        </SubMenu>
         <Menu.Item key="Edit">Edit</Menu.Item>
         <Menu.Item key="View">View</Menu.Item>
         <Menu.Item key="Help">
@@ -197,6 +207,7 @@ const mapDispatchToProps = (dispatch) => ({
   handleGetDeviceDetail: (params) => dispatch(getDeviceDetail(params)),
   handleLogout: (params) => dispatch(logout(params)),
   handleDecline: (params) => dispatch(markDangerous(params)),
+  handleCreateSnapShot: (params) => dispatch(createSnapShot(params)),
 });
 
 const withConnect = connect(mapStateToProps, mapDispatchToProps);
