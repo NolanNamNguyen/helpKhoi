@@ -1,18 +1,28 @@
 import { homeActions } from '../constants/homeActions';
 import { REQUEST, SUCCESS, FAILED } from '../constants/action-type';
 
-export const getDeviceDetail = (params) => ({
+export const getImage = (params) => ({
   type: REQUEST(homeActions.GET_DEVICE_DETAIL),
   params,
 });
 
-export const getDeviceDetailSuccess = (data) => ({
+export const getAllImageSuccess = (data) => ({
   type: SUCCESS(homeActions.GET_DEVICE_DETAIL),
   data,
 });
 
-export const getDeviceDetailFailed = (error) => ({
+export const getAllImageFailed = (error) => ({
   type: FAILED(homeActions.GET_DEVICE_DETAIL),
+  error,
+});
+
+export const getNewImageSuccess = (data) => ({
+  type: SUCCESS(homeActions.GET_NEW_IMAGE),
+  data,
+});
+
+export const getNewImageFailed = (error) => ({
+  type: FAILED(homeActions.GET_NEW_IMAGE),
   error,
 });
 

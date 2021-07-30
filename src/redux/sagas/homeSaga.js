@@ -1,8 +1,10 @@
 import { put, all, takeEvery } from 'redux-saga/effects';
 // import querystring from "querystring";
 import {
-  getDeviceDetailSuccess,
-  getDeviceDetailFailed,
+  getAllImageSuccess,
+  getAllImageFailed,
+  getNewImageSuccess,
+  getNewImageFailed,
   loginSuccess,
   loginlFailed,
   getMachineIdSuccess,
@@ -15,13 +17,17 @@ import { LOCAL_STORAGE } from '../../constants/common';
 import { REQUEST } from '../constants/action-type';
 import Api from '../../core/api/apiConfig';
 
-function* getDeviceDetail(data) {
-
+function* getImages(data) {
+  const { params } = data;
   try {
-    const response = yield Api.post('machine/fetch_images/', data.params);
-    yield put(getDeviceDetailSuccess(response.data.images));
+    const response = yield Api.post('machine/fetch_images/', params);
+    params.fetch_all
+      ? yield put(getAllImageSuccess(response.data.images))
+      : yield put(getNewImageSuccess(response.data.images));
   } catch (error) {
-    yield put(getDeviceDetailFailed(error?.response?.data || 'Error'));
+    params.fetch_all
+      ? yield put(getAllImageFailed(error?.response?.data || 'Error'))
+      : yield put(getNewImageFailed(error?.response?.data));
   }
 }
 
@@ -47,9 +53,7 @@ function* login(data) {
 }
 
 function* decline(data) {
-  console.log('ok');
   const { params } = data;
-  console.log('params', params);
   try {
     const response = yield Api.post('machine/mark_dangerous/', params);
     yield put(markDangerousSuccess(response.data || ''));
@@ -59,9 +63,7 @@ function* decline(data) {
 }
 
 function* createSnapShot(data) {
-  console.log('ok');
   const { params } = data;
-  console.log('params', params);
   try {
     const response = yield Api.post('machine/create_snapshot/', params);
     yield put(markDangerousSuccess(response.data || ''));
@@ -73,7 +75,6 @@ function* createSnapShot(data) {
 function* logout(data) {
   const { params, callback } = data;
   try {
-    console.log('im in');
     // eslint-disable-next-line no-unused-vars
     const response = yield Api.post('machine/logout/', params);
     localStorage.removeItem(LOCAL_STORAGE.session_id);
@@ -86,7 +87,7 @@ function* logout(data) {
 
 function* homeSaga() {
   yield all([
-    takeEvery(REQUEST(homeActions.GET_DEVICE_DETAIL), getDeviceDetail),
+    takeEvery(REQUEST(homeActions.GET_DEVICE_DETAIL), getImages),
     takeEvery(REQUEST(homeActions.LOGIN), login),
     takeEvery(REQUEST(homeActions.LOGOUT), logout),
     takeEvery(REQUEST(homeActions.MARK_DANGEROUS), decline),

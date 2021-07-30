@@ -1,14 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Button } from 'reactstrap';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { Menu } from 'antd';
 import { useHistory } from 'react-router';
+import { CheckCircle } from 'react-feather';
 import * as AppRoutes from '../../router/router';
-import { LOCAL_STORAGE, IMAGE_ENDPOINT } from '../../constants/common';
 import {
-  getDeviceDetail,
+  LOCAL_STORAGE,
+  IMAGE_ENDPOINT,
+  FETCH_IMAGE_TYPE,
+} from '../../constants/common';
+import {
+  getImage,
   logout,
   markDangerous,
   createSnapShot,
@@ -22,23 +27,34 @@ const HomePage = ({
   handleCreateSnapShot,
 }) => {
   const { SubMenu } = Menu;
-  const { images, fetchImageFailed } = homeReducer;
+  const { images, fetchImageFailed, newImages } = homeReducer;
   const [imageIndex, setImageIndex] = useState(undefined);
   const history = useHistory();
-  const [img1, setImg1] = useState('/assets/cat.jpg');
-  const [img2, setImg2] = useState('/assets/cat.jpg');
+  const [fetchType, _setFetchType] = useState(0);
+  const [img1, setImg1] = useState('/assets/no-image.jpg');
+  const [img2, setImg2] = useState('/assets/no-image.jpg');
   const [currentLink, setCurrentLink] = useState('Home');
+  const fetchRef = useRef(fetchType);
+
+  const setFetchType = (data) => {
+    _setFetchType(data);
+    fetchRef.current = data;
+  };
+
   useEffect(() => {
     handleGetDeviceDetail({
       sid: localStorage.getItem(LOCAL_STORAGE.session_id),
       fetch_all: 1,
     });
-    setInterval(() => {
-      const imageInterval = handleGetDeviceDetail({
+    const intervalFetchImage = setInterval(() => {
+      handleGetDeviceDetail({
         sid: localStorage.getItem(LOCAL_STORAGE.session_id),
-        fetch_all: 0,
+        fetch_all: fetchRef.current,
       });
     }, 5000);
+    return () => {
+      clearInterval(intervalFetchImage);
+    };
   }, []);
 
   useEffect(() => {
@@ -49,14 +65,21 @@ const HomePage = ({
   }, [fetchImageFailed]);
 
   useEffect(() => {
-    if (images) {
+    if (newImages?.length) {
+      newImages.forEach((img) => {
+        images.push(img);
+      });
+    }
+  }, [newImages]);
+
+  useEffect(() => {
+    if (images && images.length) {
       setImageIndex(images.length - 1);
-      console.log('aa', images);
     }
   }, [images?.length]);
 
   useEffect(() => {
-    if (imageIndex) {
+    if (Number.isInteger(imageIndex) && imageIndex !== -1) {
       setImg1(images[imageIndex]?.side_predicted_path);
       setImg2(images[imageIndex]?.up_predicted_path);
     }
@@ -68,40 +91,48 @@ const HomePage = ({
   };
 
   const handleRelease = () => {
-    console.log('aaa');
     setImg1(images[imageIndex]?.side_predicted_path);
     setImg2(images[imageIndex]?.up_predicted_path);
   };
 
   const approve = () => {
-    handleDecline({ iid: images[imageIndex].pk, sid: localStorage.getItem(LOCAL_STORAGE.session_id), danger: 0 });
+    handleDecline({
+      iid: images[imageIndex].pk,
+      sid: localStorage.getItem(LOCAL_STORAGE.session_id),
+      danger: 0,
+    });
   };
 
   const decline = () => {
-    handleDecline({ iid: images[imageIndex].pk, sid: localStorage.getItem(LOCAL_STORAGE.session_id), danger: 1 });
+    handleDecline({
+      iid: images[imageIndex].pk,
+      sid: localStorage.getItem(LOCAL_STORAGE.session_id),
+      danger: 1,
+    });
   };
 
   const handleSwitch = () => {
-    // eslint-disable-next-line no-console
-    console.log('gotta be');
+    if (images && images[imageIndex]) {
+      setImg1(images[imageIndex]?.up_predicted_path);
+      setImg2(images[imageIndex]?.side_predicted_path);
+    }
   };
 
   const prev = () => {
-    setImageIndex(imageIndex - 1 > 0 && imageIndex + 1);
+    imageIndex - 1 > 0 && setImageIndex(imageIndex + 1);
   };
 
   const next = () => {
-    setImageIndex(imageIndex + 1 <= images.length - 1 && imageIndex + 1);
+    imageIndex + 1 <= images?.length - 1 && setImageIndex(imageIndex + 1);
   };
 
   const handleClick = (data) => {
     setCurrentLink(data.key);
-    if (data.key === 'Logout') {
-      handleLogout(localStorage.getItem(LOCAL_STORAGE.session_id), () => {
-        history.push(AppRoutes.LOGIN);
-      });
-    }
+  };
 
+  const doLogout = () => {
+    history.push(AppRoutes.LOGIN);
+    handleLogout(localStorage.getItem(LOCAL_STORAGE.session_id));
   };
 
   return (
@@ -113,17 +144,52 @@ const HomePage = ({
         className="position-relative"
       >
         <SubMenu key="Home" title="Files">
-          <Menu.Item key="setting:1">Load all Images</Menu.Item>
-          <Menu.Item key="setting:2">Load only new</Menu.Item>
-          <Menu.Item onClick={() => handleCreateSnapShot({ sid: localStorage.getItem(LOCAL_STORAGE.session_id) })} key="create_snap_shot">Create data snapshot</Menu.Item>
-          <Menu.Item key="setting:4">Logout</Menu.Item>
+          <Menu.Item
+            onClick={() => {
+              setFetchType(FETCH_IMAGE_TYPE.ALL);
+            }}
+            key="fetchAll"
+          >
+            <div>
+              {fetchType === FETCH_IMAGE_TYPE.ALL && <CheckCircle size={15} />}
+              <span className="m-l-5">Load all Images</span>
+            </div>
+          </Menu.Item>
+          <Menu.Item
+            onClick={() => {
+              setFetchType(FETCH_IMAGE_TYPE.ONLY_NEW);
+            }}
+            key="fetchOnlyNew"
+          >
+            <div>
+              {fetchType === FETCH_IMAGE_TYPE.ONLY_NEW && (
+                <CheckCircle size={15} />
+              )}
+              <span className="m-l-5">Load only new</span>
+            </div>
+          </Menu.Item>
+          <Menu.Item
+            onClick={() =>
+              handleCreateSnapShot({
+                sid: localStorage.getItem(LOCAL_STORAGE.session_id),
+              })
+            }
+            key="create_snap_shot"
+          >
+            <span className="m-l-5">Create data snapshot</span>
+          </Menu.Item>
+          <Menu.Item key="setting:4">
+            <span role="button" onClick={doLogout} className="m-l-5">
+              Logout
+            </span>
+          </Menu.Item>
         </SubMenu>
         <Menu.Item key="Edit">Edit</Menu.Item>
         <Menu.Item key="View">View</Menu.Item>
         <Menu.Item key="Help">
           <NavLink to={AppRoutes.HOME}>Help</NavLink>
         </Menu.Item>
-        <Menu.Item className="position-absolute ps-r-100" key="Logout">
+        <Menu.Item onClick={doLogout} className="position-absolute ps-r-100" key="Logout">
           Logout
         </Menu.Item>
         <h2 className="position-absolute ps-l-50-per">Chick Trader</h2>
@@ -154,7 +220,7 @@ const HomePage = ({
             Approved
           </Button>
           <Button
-            onClick={clearResult}
+            onClick={handleSwitch}
             type="button"
             className="m-b-20"
             color="info"
@@ -162,7 +228,7 @@ const HomePage = ({
             Switch
           </Button>
           <Button
-            onMouseDown={handleSwitch}
+            onMouseDown={clearResult}
             onMouseUp={handleRelease}
             type="button"
             className="m-b-20"
@@ -204,7 +270,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  handleGetDeviceDetail: (params) => dispatch(getDeviceDetail(params)),
+  handleGetDeviceDetail: (params) => dispatch(getImage(params)),
   handleLogout: (params) => dispatch(logout(params)),
   handleDecline: (params) => dispatch(markDangerous(params)),
   handleCreateSnapShot: (params) => dispatch(createSnapShot(params)),

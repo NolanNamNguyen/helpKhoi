@@ -9,6 +9,8 @@ const initialState = {
   sessionId: undefined,
   deviceDetail: {},
   fetchImageFailed: undefined,
+  newImages: undefined,
+  fetchNewImage: undefined,
 };
 
 const reducer = (state = initialState, action) => {
@@ -29,7 +31,18 @@ const reducer = (state = initialState, action) => {
         ...state,
         images: undefined,
         isLoading: false,
-        fetchImageFailed: action.error
+        fetchImageFailed: action.error,
+      };
+    case SUCCESS(homeActions.GET_NEW_IMAGE):
+      return {
+        ...state,
+        newImages: action.data,
+      };
+    case FAILED(homeActions.GET_NEW_IMAGE):
+      return {
+        ...state,
+        newImages: undefined,
+        fetchNewImage: action.error,
       };
     case REQUEST(homeActions.GET_MACHINE_ID):
       return {
