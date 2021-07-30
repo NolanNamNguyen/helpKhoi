@@ -24,6 +24,7 @@ const Login = ({ handleLogin, handleGetListMachine, homeReducer }) => {
       localStorage.getItem(LOCAL_STORAGE.session_id) &&
       localStorage.getItem(LOCAL_STORAGE.session_id) !== 'undefined'
     ) {
+      console.log('ok lah');
       history.push(HOME);
     }
     handleGetListMachine();

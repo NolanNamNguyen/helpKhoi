@@ -28,13 +28,16 @@ const HomePage = ({
 }) => {
   const { SubMenu } = Menu;
   const { images, fetchImageFailed, newImages } = homeReducer;
-  const [imageIndex, setImageIndex] = useState(undefined);
+  const [imageIndex, setImageIndex] = useState(0);
   const history = useHistory();
   const [fetchType, _setFetchType] = useState(0);
   const [img1, setImg1] = useState('/assets/no-image.jpg');
   const [img2, setImg2] = useState('/assets/no-image.jpg');
   const [currentLink, setCurrentLink] = useState('Home');
   const fetchRef = useRef(fetchType);
+
+  console.log(typeof (images?.length))
+  console.log(typeof (imageIndex))
 
   const setFetchType = (data) => {
     _setFetchType(data);
@@ -79,7 +82,7 @@ const HomePage = ({
   }, [images?.length]);
 
   useEffect(() => {
-    if (Number.isInteger(imageIndex) && imageIndex !== -1) {
+    if (Number.isInteger(imageIndex) && imageIndex !== -1 && images) {
       setImg1(images[imageIndex]?.side_predicted_path);
       setImg2(images[imageIndex]?.up_predicted_path);
     }
@@ -113,13 +116,14 @@ const HomePage = ({
 
   const handleSwitch = () => {
     if (images && images[imageIndex]) {
-      setImg1(images[imageIndex]?.up_predicted_path);
-      setImg2(images[imageIndex]?.side_predicted_path);
+      const currentImg1 = img1;
+      setImg1(img2);
+      setImg2(currentImg1);
     }
   };
 
   const prev = () => {
-    imageIndex - 1 > 0 && setImageIndex(imageIndex + 1);
+    imageIndex - 1 >= 0 && setImageIndex(imageIndex - 1);
   };
 
   const next = () => {
@@ -131,8 +135,10 @@ const HomePage = ({
   };
 
   const doLogout = () => {
-    history.push(AppRoutes.LOGIN);
-    handleLogout(localStorage.getItem(LOCAL_STORAGE.session_id));
+    handleLogout(localStorage.getItem(LOCAL_STORAGE.session_id), () => {
+      console.log('wtf');
+      history.push(AppRoutes.LOGIN);
+    });
   };
 
   return (
@@ -179,7 +185,7 @@ const HomePage = ({
             <span className="m-l-5">Create data snapshot</span>
           </Menu.Item>
           <Menu.Item key="setting:4">
-            <span role="button" onClick={doLogout} className="m-l-5">
+            <span role="button" onClick={() => { doLogout() }} className="m-l-5">
               Logout
             </span>
           </Menu.Item>
@@ -189,7 +195,7 @@ const HomePage = ({
         <Menu.Item key="Help">
           <NavLink to={AppRoutes.HOME}>Help</NavLink>
         </Menu.Item>
-        <Menu.Item onClick={doLogout} className="position-absolute ps-r-100" key="Logout">
+        <Menu.Item onClick={() => { doLogout() }} className="position-absolute ps-r-100" key="Logout">
           Logout
         </Menu.Item>
         <h2 className="position-absolute ps-l-50-per">Chick Trader</h2>
@@ -241,6 +247,8 @@ const HomePage = ({
             type="button"
             className="m-b-20"
             color="danger"
+            disabled={imageIndex === 0}
+          // disabled
           >
             Prev
           </Button>
@@ -249,6 +257,7 @@ const HomePage = ({
             type="button"
             className="m-b-20"
             color="primary"
+            disabled={imageIndex === images?.length - 1}
           >
             Next
           </Button>
@@ -271,7 +280,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   handleGetDeviceDetail: (params) => dispatch(getImage(params)),
-  handleLogout: (params) => dispatch(logout(params)),
+  handleLogout: (params, callback) => dispatch(logout(params, callback)),
   handleDecline: (params) => dispatch(markDangerous(params)),
   handleCreateSnapShot: (params) => dispatch(createSnapShot(params)),
 });
