@@ -166,7 +166,7 @@
 }
 
 //z-index
-@for $i from 1 through 100 {
+@for $i from -100 through 100 {
   .z-index-#{$i} {
     z-index: #{$i};
   }

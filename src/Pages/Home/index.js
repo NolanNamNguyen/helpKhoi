@@ -11,6 +11,7 @@ import {
   LOCAL_STORAGE,
   IMAGE_ENDPOINT,
   FETCH_IMAGE_TYPE,
+  DETECTED_NOTHING,
 } from '../../constants/common';
 import {
   getImage,
@@ -31,13 +32,16 @@ const HomePage = ({
   const [imageIndex, setImageIndex] = useState(0);
   const history = useHistory();
   const [fetchType, _setFetchType] = useState(0);
-  const [img1, setImg1] = useState('/assets/no-image.jpg');
-  const [img2, setImg2] = useState('/assets/no-image.jpg');
+  const [img1, setImg1] = useState({
+    path: '/assets/no-image.jpg',
+    imgAnnotation: '',
+  });
+  const [img2, setImg2] = useState({
+    path: '/assets/no-image.jpg',
+    imgAnnotation: '',
+  });
   const [currentLink, setCurrentLink] = useState('Home');
   const fetchRef = useRef(fetchType);
-
-  console.log(typeof (images?.length))
-  console.log(typeof (imageIndex))
 
   const setFetchType = (data) => {
     _setFetchType(data);
@@ -62,8 +66,8 @@ const HomePage = ({
 
   useEffect(() => {
     if (fetchImageFailed) {
-      localStorage.removeItem(LOCAL_STORAGE.session_id);
-      history.push(AppRoutes.ACCESS_DENIED);
+      // localStorage.removeItem(LOCAL_STORAGE.session_id);
+      // history.push(AppRoutes.ACCESS_DENIED);
     }
   }, [fetchImageFailed]);
 
@@ -83,19 +87,37 @@ const HomePage = ({
 
   useEffect(() => {
     if (Number.isInteger(imageIndex) && imageIndex !== -1 && images) {
-      setImg1(images[imageIndex]?.side_predicted_path);
-      setImg2(images[imageIndex]?.up_predicted_path);
+      setImg1({
+        path: images[imageIndex]?.side_predicted_path,
+        imgAnnotation: images[imageIndex]?.side_annotations,
+      });
+      setImg2({
+        path: images[imageIndex]?.up_predicted_path,
+        imgAnnotation: images[imageIndex]?.up_annotations,
+      });
     }
   }, [imageIndex]);
 
   const clearResult = () => {
-    setImg1(images[imageIndex]?.side_image_path);
-    setImg2(images[imageIndex]?.up_image_path);
+    setImg1({
+      path: images[imageIndex]?.side_image_path,
+      imgAnnotation: images[imageIndex]?.side_annotations,
+    });
+    setImg2({
+      path: images[imageIndex]?.up_image_path,
+      imgAnnotation: images[imageIndex]?.up_annotations,
+    });
   };
 
   const handleRelease = () => {
-    setImg1(images[imageIndex]?.side_predicted_path);
-    setImg2(images[imageIndex]?.up_predicted_path);
+    setImg1({
+      path: images[imageIndex]?.side_predicted_path,
+      imgAnnotation: images[imageIndex]?.side_annotations,
+    });
+    setImg2({
+      path: images[imageIndex]?.up_predicted_path,
+      imgAnnotation: images[imageIndex]?.up_annotations,
+    });
   };
 
   const approve = () => {
@@ -136,7 +158,6 @@ const HomePage = ({
 
   const doLogout = () => {
     handleLogout(localStorage.getItem(LOCAL_STORAGE.session_id), () => {
-      console.log('wtf');
       history.push(AppRoutes.LOGIN);
     });
   };
@@ -147,7 +168,7 @@ const HomePage = ({
         onClick={handleClick}
         selectedKeys={[currentLink]}
         mode="horizontal"
-        className="position-relative"
+        className="position-relative menu-container"
       >
         <SubMenu key="Home" title="Files">
           <Menu.Item
@@ -185,7 +206,13 @@ const HomePage = ({
             <span className="m-l-5">Create data snapshot</span>
           </Menu.Item>
           <Menu.Item key="setting:4">
-            <span role="button" onClick={() => { doLogout() }} className="m-l-5">
+            <span
+              role="button"
+              onClick={() => {
+                doLogout();
+              }}
+              className="m-l-5"
+            >
               Logout
             </span>
           </Menu.Item>
@@ -195,18 +222,29 @@ const HomePage = ({
         <Menu.Item key="Help">
           <NavLink to={AppRoutes.HOME}>Help</NavLink>
         </Menu.Item>
-        <Menu.Item onClick={() => { doLogout() }} className="position-absolute ps-r-100" key="Logout">
+        <Menu.Item
+          onClick={() => {
+            doLogout();
+          }}
+          className="position-absolute ps-r-100"
+          key="Logout"
+        >
           Logout
         </Menu.Item>
-        <h2 className="position-absolute ps-l-50-per">Chick Trader</h2>
+        <h2 className="position-absolute width-100-per d-flex justify-content-center z-index--1">Chick Trader</h2>
       </Menu>
       <div className="d-flex align-items-center justify-content-around height-100-per widht-100-per">
-        <div className="d-flex width-41-per">
+        <div className="d-flex flex-column align-items-center width-41-per position-relative">
           <img
             className="width-100-per"
-            src={`${IMAGE_ENDPOINT}${img1}`}
+            src={`${IMAGE_ENDPOINT}${img1.path}`}
             alt=" not found"
           />
+          {img1?.imgAnnotation && img1?.imgAnnotation !== DETECTED_NOTHING && (
+            <h6 className="position-absolute ps-b--32 detected-text">
+              {img1?.imgAnnotation}
+            </h6>
+          )}
         </div>
         <div className="width-10-per height-100-per min-width-by-px-90 justify-content-center d-flex flex-column">
           <Button
@@ -248,7 +286,7 @@ const HomePage = ({
             className="m-b-20"
             color="danger"
             disabled={imageIndex === 0}
-          // disabled
+            // disabled
           >
             Prev
           </Button>
@@ -262,12 +300,17 @@ const HomePage = ({
             Next
           </Button>
         </div>
-        <div className="d-flex width-41-per">
+        <div className="d-flex flex-column align-items-center width-41-per position-relative">
           <img
             className="width-100-per"
-            src={`${IMAGE_ENDPOINT}${img2}`}
+            src={`${IMAGE_ENDPOINT}${img2.path}`}
             alt=" not found"
           />
+          {img2?.imgAnnotation && img2?.imgAnnotation !== DETECTED_NOTHING && (
+            <h6 className="position-absolute ps-b--32 detected-text">
+              {img2?.imgAnnotation}
+            </h6>
+          )}
         </div>
       </div>
     </div>

@@ -74,7 +74,6 @@ function* createSnapShot(data) {
 
 function* logout(data) {
   const { params, callback } = data;
-  console.log('1', params);
   try {
     // eslint-disable-next-line no-unused-vars
     const response = yield Api.post('machine/logout/', {sid: params});
