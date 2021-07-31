@@ -70,6 +70,7 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         // listMachine: action.data,
+        images: [],
         loadingMachineList: false,
       };
     case FAILED(homeActions.LOGIN):

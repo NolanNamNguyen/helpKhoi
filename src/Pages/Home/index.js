@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { Button } from 'reactstrap';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
-import { Menu } from 'antd';
+import { Menu, Input } from 'antd';
 import { useHistory } from 'react-router';
 import { CheckCircle } from 'react-feather';
 import * as AppRoutes from '../../router/router';
@@ -27,11 +27,12 @@ const HomePage = ({
   handleDecline,
   handleCreateSnapShot,
 }) => {
+  const { TextArea } = Input;
   const { SubMenu } = Menu;
   const { images, fetchImageFailed, newImages } = homeReducer;
   const [imageIndex, setImageIndex] = useState(0);
   const history = useHistory();
-  const [fetchType, _setFetchType] = useState(0);
+  const [fetchType, _setFetchType] = useState(1);
   const [img1, setImg1] = useState({
     path: 'assets/no-image.jpg',
     imgAnnotation: '',
@@ -42,6 +43,7 @@ const HomePage = ({
   });
   const [currentLink, setCurrentLink] = useState('Home');
   const fetchRef = useRef(fetchType);
+  const submitComment = useRef(undefined);
 
   const setFetchType = (data) => {
     _setFetchType(data);
@@ -51,7 +53,7 @@ const HomePage = ({
   useEffect(() => {
     handleGetDeviceDetail({
       sid: localStorage.getItem(LOCAL_STORAGE.session_id),
-      fetch_all: 1,
+      fetch_all: fetchRef.current,
     });
     const intervalFetchImage = setInterval(() => {
       handleGetDeviceDetail({
@@ -66,8 +68,8 @@ const HomePage = ({
 
   useEffect(() => {
     if (fetchImageFailed) {
-      localStorage.removeItem(LOCAL_STORAGE.session_id);
-      history.push(AppRoutes.ACCESS_DENIED);
+      // localStorage.removeItem(LOCAL_STORAGE.session_id);
+      // history.push(AppRoutes.ACCESS_DENIED);
     }
   }, [fetchImageFailed]);
 
@@ -121,17 +123,21 @@ const HomePage = ({
   };
 
   const approve = () => {
-    handleDecline({
-      iid: images[imageIndex].pk,
-      sid: localStorage.getItem(LOCAL_STORAGE.session_id),
-      danger: 0,
-    });
+    if (images && images.length) {
+      handleDecline({
+        iid: images[imageIndex].pk,
+        sid: localStorage.getItem(LOCAL_STORAGE.session_id),
+        notes: submitComment.current.resizableTextArea.textArea.innerHTML,
+        danger: 0,
+      });
+    }
   };
 
   const decline = () => {
     handleDecline({
       iid: images[imageIndex].pk,
       sid: localStorage.getItem(LOCAL_STORAGE.session_id),
+      notes: submitComment.current.resizableTextArea.textArea.innerHTML,
       danger: 1,
     });
   };
@@ -231,13 +237,22 @@ const HomePage = ({
         >
           Logout
         </Menu.Item>
-        <h2 className="position-absolute width-100-per d-flex justify-content-center z-index--1">Chick Trader</h2>
+        <h2 className="position-absolute width-100-per d-flex justify-content-center z-index--1">
+          Chick Trader
+        </h2>
       </Menu>
+      {images?.length && (
+        <h4 className="d-flex justify-content-center">
+          Image Created Time : {images[imageIndex].creation_time}
+        </h4>
+      )}
       <div className="d-flex align-items-center justify-content-around height-100-per widht-100-per">
         <div className="d-flex flex-column align-items-center width-41-per position-relative">
           <img
             className="width-100-per"
-            src={images?.length ? (`${IMAGE_ENDPOINT}${img1.path}`) : (`${img1.path}`)}
+            src={
+              images?.length ? `${IMAGE_ENDPOINT}${img1.path}` : `${img1.path}`
+            }
             alt=" not found"
           />
           {img1?.imgAnnotation && img1?.imgAnnotation !== DETECTED_NOTHING && (
@@ -253,6 +268,9 @@ const HomePage = ({
             className="m-b-20"
             color="danger"
           >
+            {images?.length && images[imageIndex].danger < 0 && (
+              <CheckCircle className="m-r-6 m-b-2" size="16" />
+            )}
             Decline
           </Button>
           <Button
@@ -261,6 +279,9 @@ const HomePage = ({
             className="m-b-20"
             color="success"
           >
+            {images?.length && images[imageIndex].danger > 0 && (
+              <CheckCircle className="m-r-6 m-b-2" size="16" />
+            )}
             Approved
           </Button>
           <Button
@@ -286,7 +307,7 @@ const HomePage = ({
             className="m-b-20"
             color="danger"
             disabled={imageIndex === 0}
-          // disabled
+            // disabled
           >
             Prev
           </Button>
@@ -299,11 +320,17 @@ const HomePage = ({
           >
             Next
           </Button>
+          <div>
+            <TextArea ref={submitComment} rows={4} />
+          </div>
         </div>
+
         <div className="d-flex flex-column align-items-center width-41-per position-relative">
           <img
             className="width-100-per"
-            src={images?.length ? (`${IMAGE_ENDPOINT}${img2.path}`) : (`${img2.path}`)}
+            src={
+              images?.length ? `${IMAGE_ENDPOINT}${img2.path}` : `${img2.path}`
+            }
             alt=" not found"
           />
           {img2?.imgAnnotation && img2?.imgAnnotation !== DETECTED_NOTHING && (
