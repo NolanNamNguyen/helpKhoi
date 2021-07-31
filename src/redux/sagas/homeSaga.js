@@ -11,6 +11,8 @@ import {
   getMachineIdFailed,
   markDangerousSuccess,
   markDangerousFailed,
+  fetchImageDetailFailed,
+  fetchImageDetailSuccess,
 } from '../actions/homeAction';
 import { homeActions } from '../constants/homeActions';
 import { LOCAL_STORAGE } from '../../constants/common';
@@ -52,10 +54,11 @@ function* login(data) {
   }
 }
 
-function* decline(data) {
-  const { params } = data;
+function* handleChangeDanger(data) {
+  const { params, callback } = data;
   try {
     const response = yield Api.post('machine/mark_dangerous/', params);
+    callback && callback();
     yield put(markDangerousSuccess(response.data || ''));
   } catch (error) {
     yield put(markDangerousFailed(error.response?.data || ''));
@@ -72,11 +75,21 @@ function* createSnapShot(data) {
   }
 }
 
+function* getImageDetail(data) {
+  const { params } = data;
+  try {
+    const response = yield Api.post('machine/create_snapshot/', params);
+    yield put(fetchImageDetailSuccess(response.data || ''));
+  } catch (error) {
+    yield put(fetchImageDetailFailed(error.response?.data || ''));
+  }
+}
+
 function* logout(data) {
   const { params, callback } = data;
   try {
     // eslint-disable-next-line no-unused-vars
-    const response = yield Api.post('machine/logout/', {sid: params});
+    const response = yield Api.post('machine/logout/', { sid: params });
     localStorage.removeItem(LOCAL_STORAGE.session_id);
     callback && callback();
   } catch (error) {
@@ -90,9 +103,10 @@ function* homeSaga() {
     takeEvery(REQUEST(homeActions.GET_DEVICE_DETAIL), getImages),
     takeEvery(REQUEST(homeActions.LOGIN), login),
     takeEvery(REQUEST(homeActions.LOGOUT), logout),
-    takeEvery(REQUEST(homeActions.MARK_DANGEROUS), decline),
+    takeEvery(REQUEST(homeActions.MARK_DANGEROUS), handleChangeDanger),
     takeEvery(REQUEST(homeActions.GET_MACHINE_ID), getMachineId),
     takeEvery(REQUEST(homeActions.CREATE_SNAPSHOT), createSnapShot),
+    takeEvery(REQUEST(homeActions.FETCH_IMAGE_DETAIL), getImageDetail),
   ]);
 }
 

@@ -11,6 +11,7 @@ const initialState = {
   fetchImageFailed: undefined,
   newImages: undefined,
   fetchNewImage: undefined,
+  imageDetail: undefined,
 };
 
 const reducer = (state = initialState, action) => {
@@ -32,6 +33,23 @@ const reducer = (state = initialState, action) => {
         images: undefined,
         isLoading: false,
         fetchImageFailed: action.error,
+      };
+    case REQUEST(homeActions.FETCH_IMAGE_DETAIL):
+      return {
+        ...state,
+        isLoading: true,
+      };
+    case SUCCESS(homeActions.FETCH_IMAGE_DETAIL):
+      return {
+        ...state,
+        imageDetail: action.data,
+        isLoading: false,
+      };
+    case FAILED(homeActions.FETCH_IMAGE_DETAIL):
+      return {
+        ...state,
+        imageDetail: undefined,
+        isLoading: false,
       };
     case SUCCESS(homeActions.GET_NEW_IMAGE):
       return {

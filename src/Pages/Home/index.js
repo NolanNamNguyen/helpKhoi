@@ -18,18 +18,20 @@ import {
   logout,
   markDangerous,
   createSnapShot,
+  fetchImageDetail,
 } from '../../redux/actions/homeAction';
 
 const HomePage = ({
   handleGetDeviceDetail,
   homeReducer,
   handleLogout,
-  handleDecline,
+  handleChangeDanger,
   handleCreateSnapShot,
+  handleFetchImageDetail,
 }) => {
   const { TextArea } = Input;
   const { SubMenu } = Menu;
-  const { images, fetchImageFailed, newImages } = homeReducer;
+  const { images, fetchImageFailed, newImages, imageDetail } = homeReducer;
   const [imageIndex, setImageIndex] = useState(0);
   const history = useHistory();
   const [fetchType, _setFetchType] = useState(1);
@@ -65,6 +67,12 @@ const HomePage = ({
       clearInterval(intervalFetchImage);
     };
   }, []);
+
+  // useEffect(() => {
+  //   if(imageDetail){
+      
+  //   }
+  // }, [imageDetail])
 
   useEffect(() => {
     if (fetchImageFailed) {
@@ -124,22 +132,29 @@ const HomePage = ({
 
   const approve = () => {
     if (images && images.length) {
-      handleDecline({
+      handleChangeDanger({
         iid: images[imageIndex].pk,
         sid: localStorage.getItem(LOCAL_STORAGE.session_id),
         notes: submitComment.current.resizableTextArea.textArea.innerHTML,
         danger: 0,
+      }, () => {
+        handleFetchImageDetail();
       });
     }
   };
 
   const decline = () => {
-    handleDecline({
-      iid: images[imageIndex].pk,
-      sid: localStorage.getItem(LOCAL_STORAGE.session_id),
-      notes: submitComment.current.resizableTextArea.textArea.innerHTML,
-      danger: 1,
-    });
+    handleChangeDanger(
+      {
+        iid: images[imageIndex].pk,
+        sid: localStorage.getItem(LOCAL_STORAGE.session_id),
+        notes: submitComment.current.resizableTextArea.textArea.innerHTML,
+        danger: 1,
+      },
+      () => {
+        handleFetchImageDetail();
+      },
+    );
   };
 
   const handleSwitch = () => {
@@ -243,7 +258,7 @@ const HomePage = ({
       </Menu>
       {images?.length && (
         <h4 className="d-flex justify-content-center">
-          Image Created Time : {images[imageIndex].creation_time}
+          Image Created Time : {images[imageIndex].stamped_time}
         </h4>
       )}
       <div className="d-flex align-items-center justify-content-around height-100-per widht-100-per">
@@ -351,8 +366,10 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
   handleGetDeviceDetail: (params) => dispatch(getImage(params)),
   handleLogout: (params, callback) => dispatch(logout(params, callback)),
-  handleDecline: (params) => dispatch(markDangerous(params)),
+  handleChangeDanger: (params, callback) =>
+    dispatch(markDangerous(params, callback)),
   handleCreateSnapShot: (params) => dispatch(createSnapShot(params)),
+  handleFetchImageDetail: (params) => dispatch(fetchImageDetail(params)),
 });
 
 const withConnect = connect(mapStateToProps, mapDispatchToProps);

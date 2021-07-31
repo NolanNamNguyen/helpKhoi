@@ -78,9 +78,10 @@ export const getUserFromSessionFailed = (error) => ({
   error,
 });
 
-export const markDangerous = (params) => ({
+export const markDangerous = (params, callback) => ({
   type: REQUEST(homeActions.MARK_DANGEROUS),
   params,
+  callback,
 });
 
 export const markDangerousSuccess = (data) => ({
@@ -105,5 +106,20 @@ export const createSnapShotSuccess = (data) => ({
 
 export const createSnapShotFailed = (error) => ({
   type: FAILED(homeActions.CREATE_SNAPSHOT),
+  error,
+});
+
+export const fetchImageDetail = (params) => ({
+  type: REQUEST(homeActions.FETCH_IMAGE_DETAIL),
+  params,
+});
+
+export const fetchImageDetailSuccess = (data) => ({
+  type: SUCCESS(homeActions.FETCH_IMAGE_DETAIL),
+  data,
+});
+
+export const fetchImageDetailFailed = (error) => ({
+  type: FAILED(homeActions.FETCH_IMAGE_DETAIL),
   error,
 });
