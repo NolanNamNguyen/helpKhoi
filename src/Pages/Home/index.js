@@ -33,11 +33,11 @@ const HomePage = ({
   const history = useHistory();
   const [fetchType, _setFetchType] = useState(0);
   const [img1, setImg1] = useState({
-    path: '/assets/no-image.jpg',
+    path: 'assets/no-image.jpg',
     imgAnnotation: '',
   });
   const [img2, setImg2] = useState({
-    path: '/assets/no-image.jpg',
+    path: 'assets/no-image.jpg',
     imgAnnotation: '',
   });
   const [currentLink, setCurrentLink] = useState('Home');
@@ -237,7 +237,7 @@ const HomePage = ({
         <div className="d-flex flex-column align-items-center width-41-per position-relative">
           <img
             className="width-100-per"
-            src={`${IMAGE_ENDPOINT}${img1.path}`}
+            src={images?.length ? (`${IMAGE_ENDPOINT}${img1.path}`) : (`${img1.path}`)}
             alt=" not found"
           />
           {img1?.imgAnnotation && img1?.imgAnnotation !== DETECTED_NOTHING && (
@@ -286,7 +286,7 @@ const HomePage = ({
             className="m-b-20"
             color="danger"
             disabled={imageIndex === 0}
-            // disabled
+          // disabled
           >
             Prev
           </Button>
@@ -303,7 +303,7 @@ const HomePage = ({
         <div className="d-flex flex-column align-items-center width-41-per position-relative">
           <img
             className="width-100-per"
-            src={`${IMAGE_ENDPOINT}${img2.path}`}
+            src={images?.length ? (`${IMAGE_ENDPOINT}${img2.path}`) : (`${img2.path}`)}
             alt=" not found"
           />
           {img2?.imgAnnotation && img2?.imgAnnotation !== DETECTED_NOTHING && (
