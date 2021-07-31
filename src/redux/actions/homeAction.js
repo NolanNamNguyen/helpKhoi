@@ -109,9 +109,10 @@ export const createSnapShotFailed = (error) => ({
   error,
 });
 
-export const fetchImageDetail = (params) => ({
+export const fetchImageDetail = (params, callback) => ({
   type: REQUEST(homeActions.FETCH_IMAGE_DETAIL),
   params,
+  callback,
 });
 
 export const fetchImageDetailSuccess = (data) => ({

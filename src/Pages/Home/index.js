@@ -29,28 +29,42 @@ const HomePage = ({
   handleCreateSnapShot,
   handleFetchImageDetail,
 }) => {
+  const [noteDefault, setNoteDefault] = useState('');
   const { TextArea } = Input;
   const { SubMenu } = Menu;
-  const { images, fetchImageFailed, newImages, imageDetail } = homeReducer;
-  const [imageIndex, setImageIndex] = useState(0);
+  const { images, fetchImageFailed, newImages } = homeReducer;
+  const [imageIndex, _setImageIndex] = useState(0);
+  const [noteRenderKey, setNoteRenderKey] = useState(0);
   const history = useHistory();
   const [fetchType, _setFetchType] = useState(1);
+  const [upDownState, setUpDownState] = useState({
+    img1State: 'side_',
+    img2State: 'up_',
+  })
   const [img1, setImg1] = useState({
     path: 'assets/no-image.jpg',
+    nomalPath: 'assets/no-image.jpg',
     imgAnnotation: '',
   });
   const [img2, setImg2] = useState({
     path: 'assets/no-image.jpg',
+    nomalPath: 'assets/no-image.jpg',
     imgAnnotation: '',
   });
   const [currentLink, setCurrentLink] = useState('Home');
   const fetchRef = useRef(fetchType);
   const submitComment = useRef(undefined);
+  const [pathAttr, setPathAttr] = useState('path');
 
   const setFetchType = (data) => {
     _setFetchType(data);
     fetchRef.current = data;
   };
+
+  const setImageIndex = (data) => {
+    _setImageIndex(data);
+    setNoteRenderKey(`note_renderKey${data}`);
+  }
 
   useEffect(() => {
     handleGetDeviceDetail({
@@ -67,12 +81,6 @@ const HomePage = ({
       clearInterval(intervalFetchImage);
     };
   }, []);
-
-  // useEffect(() => {
-  //   if(imageDetail){
-      
-  //   }
-  // }, [imageDetail])
 
   useEffect(() => {
     if (fetchImageFailed) {
@@ -96,38 +104,30 @@ const HomePage = ({
   }, [images?.length]);
 
   useEffect(() => {
-    if (Number.isInteger(imageIndex) && imageIndex !== -1 && images) {
+    if (Number.isInteger(imageIndex) && imageIndex !== -1 && images && images.length) {
+      setNoteDefault(images[imageIndex].notes);
+      setTimeout(() => {
+        setNoteRenderKey(imageIndex)
+      }, 100);
       setImg1({
-        path: images[imageIndex]?.side_predicted_path,
+        path: images[imageIndex][`${upDownState.img1State}predicted_path`],
+        normalPath: images[imageIndex][`${upDownState.img1State}image_path`],
         imgAnnotation: images[imageIndex]?.side_annotations,
       });
       setImg2({
-        path: images[imageIndex]?.up_predicted_path,
+        path: images[imageIndex][`${upDownState.img2State}predicted_path`],
+        normalPath: images[imageIndex][`${upDownState.img2State}image_path`],
         imgAnnotation: images[imageIndex]?.up_annotations,
       });
     }
-  }, [imageIndex]);
+  }, [imageIndex, upDownState]);
 
   const clearResult = () => {
-    setImg1({
-      path: images[imageIndex]?.side_image_path,
-      imgAnnotation: images[imageIndex]?.side_annotations,
-    });
-    setImg2({
-      path: images[imageIndex]?.up_image_path,
-      imgAnnotation: images[imageIndex]?.up_annotations,
-    });
+    setPathAttr('normalPath');
   };
 
   const handleRelease = () => {
-    setImg1({
-      path: images[imageIndex]?.side_predicted_path,
-      imgAnnotation: images[imageIndex]?.side_annotations,
-    });
-    setImg2({
-      path: images[imageIndex]?.up_predicted_path,
-      imgAnnotation: images[imageIndex]?.up_annotations,
-    });
+    setPathAttr('path');
   };
 
   const approve = () => {
@@ -138,7 +138,7 @@ const HomePage = ({
         notes: submitComment.current.resizableTextArea.textArea.innerHTML,
         danger: 0,
       }, () => {
-        handleFetchImageDetail();
+        handleFetchImageDetail({ sid: localStorage.getItem(LOCAL_STORAGE.session_id), iid: images[imageIndex].pk }, updateImageDetail);
       });
     }
   };
@@ -152,16 +152,30 @@ const HomePage = ({
         danger: 1,
       },
       () => {
-        handleFetchImageDetail();
+        handleFetchImageDetail({ sid: localStorage.getItem(LOCAL_STORAGE.session_id), iid: images[imageIndex].pk }, updateImageDetail);
       },
     );
   };
 
+  const updateImageDetail = (updatedImg) => {
+    images[imageIndex] = {
+      pk: images[imageIndex].pk,
+      ...updatedImg.image,
+    }
+    setNoteDefault(images[imageIndex].notes);
+    console.log('1');
+    console.log(images[imageIndex]);
+  };
+
   const handleSwitch = () => {
     if (images && images[imageIndex]) {
-      const currentImg1 = img1;
-      setImg1(img2);
-      setImg2(currentImg1);
+      const currentImg1State = upDownState.img1State;
+      // setImg1(img2);
+      // setImg2(currentImg1);
+      setUpDownState({
+        img1State: upDownState.img2State,
+        img2State: currentImg1State,
+      })
     }
   };
 
@@ -256,103 +270,111 @@ const HomePage = ({
           Chick Trader
         </h2>
       </Menu>
-      {images?.length && (
-        <h4 className="d-flex justify-content-center">
-          Image Created Time : {images[imageIndex].stamped_time}
-        </h4>
-      )}
-      <div className="d-flex align-items-center justify-content-around height-100-per widht-100-per">
-        <div className="d-flex flex-column align-items-center width-41-per position-relative">
-          <img
-            className="width-100-per"
-            src={
-              images?.length ? `${IMAGE_ENDPOINT}${img1.path}` : `${img1.path}`
-            }
-            alt=" not found"
-          />
-          {img1?.imgAnnotation && img1?.imgAnnotation !== DETECTED_NOTHING && (
-            <h6 className="position-absolute ps-b--32 detected-text">
-              {img1?.imgAnnotation}
-            </h6>
-          )}
-        </div>
-        <div className="width-10-per height-100-per min-width-by-px-90 justify-content-center d-flex flex-column">
-          <Button
-            onClick={decline}
-            type="button"
-            className="m-b-20"
-            color="danger"
-          >
-            {images?.length && images[imageIndex].danger < 0 && (
-              <CheckCircle className="m-r-6 m-b-2" size="16" />
-            )}
-            Decline
-          </Button>
-          <Button
-            onClick={approve}
-            type="button"
-            className="m-b-20"
-            color="success"
-          >
-            {images?.length && images[imageIndex].danger > 0 && (
-              <CheckCircle className="m-r-6 m-b-2" size="16" />
-            )}
-            Approved
-          </Button>
-          <Button
-            onClick={handleSwitch}
-            type="button"
-            className="m-b-20"
-            color="info"
-          >
-            Switch
-          </Button>
-          <Button
-            onMouseDown={clearResult}
-            onMouseUp={handleRelease}
-            type="button"
-            className="m-b-20"
-            color="primary"
-          >
-            Clear Result
-          </Button>
-          <Button
-            onClick={prev}
-            type="button"
-            className="m-b-20"
-            color="danger"
-            disabled={imageIndex === 0}
-            // disabled
-          >
-            Prev
-          </Button>
-          <Button
-            onClick={next}
-            type="button"
-            className="m-b-20"
-            color="primary"
-            disabled={imageIndex === images?.length - 1}
-          >
-            Next
-          </Button>
-          <div>
-            <TextArea ref={submitComment} rows={4} />
-          </div>
-        </div>
+      <div className="d-flex flex-column justify-content-center height-100-per">
 
-        <div className="d-flex flex-column align-items-center width-41-per position-relative">
-          <img
-            className="width-100-per"
-            src={
-              images?.length ? `${IMAGE_ENDPOINT}${img2.path}` : `${img2.path}`
-            }
-            alt=" not found"
-          />
-          {img2?.imgAnnotation && img2?.imgAnnotation !== DETECTED_NOTHING && (
-            <h6 className="position-absolute ps-b--32 detected-text">
-              {img2?.imgAnnotation}
-            </h6>
-          )}
+        <div className="d-flex align-items-center justify-content-around widht-100-per">
+          <div className="d-flex flex-column align-items-center width-41-per position-relative">
+            {images?.length && (
+              <h6 className="d-flex justify-content-center detected-text date-time-background">
+                {images[imageIndex].stamped_time}
+              </h6>
+            )}
+            <img
+              className="width-100-per"
+              src={
+                images?.length ? `${IMAGE_ENDPOINT}${img1[pathAttr]}` : `${img1[pathAttr]}`
+              }
+              alt=" not found"
+            />
+            {img1?.imgAnnotation && img1?.imgAnnotation !== DETECTED_NOTHING && (
+              <h6 className="position-absolute ps-b--32 detected-text">
+                {img1?.imgAnnotation}
+              </h6>
+            )}
+          </div>
+          <div className="width-10-per height-100-per min-width-by-px-90 justify-content-center d-flex flex-column">
+            <Button
+              onClick={decline}
+              type="button"
+              className="m-b-20"
+              color="danger"
+            >
+              {images?.length && images[imageIndex].danger < 0 && (
+                <CheckCircle className="m-r-6 m-b-2" size="16" />
+              )}
+              Decline
+            </Button>
+            <Button
+              onClick={approve}
+              type="button"
+              className="m-b-20"
+              color="success"
+            >
+              {images?.length && images[imageIndex].danger > 0 && (
+                <CheckCircle className="m-r-6 m-b-2" size="16" />
+              )}
+              Approved
+            </Button>
+            <Button
+              onClick={handleSwitch}
+              type="button"
+              className="m-b-20"
+              color="info"
+            >
+              Switch
+            </Button>
+            <Button
+              onMouseDown={clearResult}
+              onMouseUp={handleRelease}
+              type="button"
+              className="m-b-20"
+              color="primary"
+            >
+              Clear Result
+            </Button>
+            <Button
+              onClick={prev}
+              type="button"
+              className="m-b-20"
+              color="danger"
+              disabled={imageIndex === 0}
+            // disabled
+            >
+              Prev
+            </Button>
+            <Button
+              onClick={next}
+              type="button"
+              className="m-b-20"
+              color="primary"
+              disabled={imageIndex === images?.length - 1}
+            >
+              Next
+            </Button>
+            <div>
+              <TextArea key={noteRenderKey} defaultValue={noteDefault} ref={submitComment} rows={4} />
+            </div>
+          </div>
+
+          <div className="d-flex flex-column align-items-center width-41-per position-relative">
+            {images?.length && (
+              <h6 className="d-flex justify-content-center detected-text date-time-background">
+                {images[imageIndex].stamped_time}
+              </h6>
+            )}
+            <img
+              className="width-100-per"
+              src={
+                images?.length ? `${IMAGE_ENDPOINT}${img2[pathAttr]}` : `${img2[pathAttr]}`
+              }
+              alt=" not found"
+            />
+            {img2?.imgAnnotation && img2?.imgAnnotation !== DETECTED_NOTHING && (
+              <h6 className="position-absolute ps-b--32 detected-text">
+                {img2?.imgAnnotation}
+              </h6>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -369,7 +391,7 @@ const mapDispatchToProps = (dispatch) => ({
   handleChangeDanger: (params, callback) =>
     dispatch(markDangerous(params, callback)),
   handleCreateSnapShot: (params) => dispatch(createSnapShot(params)),
-  handleFetchImageDetail: (params) => dispatch(fetchImageDetail(params)),
+  handleFetchImageDetail: (params, callback) => dispatch(fetchImageDetail(params, callback)),
 });
 
 const withConnect = connect(mapStateToProps, mapDispatchToProps);

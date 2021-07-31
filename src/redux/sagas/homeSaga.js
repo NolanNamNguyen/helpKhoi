@@ -76,9 +76,10 @@ function* createSnapShot(data) {
 }
 
 function* getImageDetail(data) {
-  const { params } = data;
+  const { params, callback } = data;
   try {
-    const response = yield Api.post('machine/create_snapshot/', params);
+    const response = yield Api.post('machine/image_detail/', params);
+    callback && callback(response.data);
     yield put(fetchImageDetailSuccess(response.data || ''));
   } catch (error) {
     yield put(fetchImageDetailFailed(error.response?.data || ''));
@@ -90,6 +91,8 @@ function* logout(data) {
   try {
     // eslint-disable-next-line no-unused-vars
     const response = yield Api.post('machine/logout/', { sid: params });
+    yield put(getAllImageSuccess(undefined))
+    yield put(getNewImageSuccess(undefined));
     localStorage.removeItem(LOCAL_STORAGE.session_id);
     callback && callback();
   } catch (error) {
