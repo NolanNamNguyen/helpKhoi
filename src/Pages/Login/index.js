@@ -13,22 +13,29 @@ import { login, getMachineId } from '../../redux/actions/homeAction';
 import { APP_ROLE, LOCAL_STORAGE } from '../../constants/common';
 
 const Login = ({ handleLogin, handleGetListMachine, homeReducer }) => {
-  const { listMachine, loadingMachineList } = homeReducer;
+  const { listMachine, loadingMachineList, loginFailed } = homeReducer;
   const [machine, setMachine] = useState('');
   const history = useHistory();
   const [selectedMachineError, setSelectedMachineError] = useState(false);
   const [roleCheck, setRoleCheck] = useState(true);
+  const [wrongPassword, setWrongPassword] = useState('');
 
   useEffect(() => {
     if (
       localStorage.getItem(LOCAL_STORAGE.session_id) &&
       localStorage.getItem(LOCAL_STORAGE.session_id) !== 'undefined'
     ) {
-      console.log('ok lah');
       history.push(HOME);
     }
     handleGetListMachine();
   }, []);
+
+  useEffect(() => {
+    if (loginFailed) {
+      console.log(loginFailed);
+      setWrongPassword('Your password is wrong');
+    }
+  }, [loginFailed]);
 
   useEffect(() => {
     machine && setSelectedMachineError(false);
@@ -108,7 +115,7 @@ const Login = ({ handleLogin, handleGetListMachine, homeReducer }) => {
             type="password"
             {...register('password')}
           />
-          <FieldError message={errors?.password?.message} />
+          <FieldError message={errors?.password?.message || wrongPassword} />
         </Form.Item>
         <Form.Item className="width-70-per">
           <Checkbox defaultChecked onChange={onCheck}>

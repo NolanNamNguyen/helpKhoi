@@ -84,8 +84,8 @@ const HomePage = ({
 
   useEffect(() => {
     if (fetchImageFailed) {
-      // localStorage.removeItem(LOCAL_STORAGE.session_id);
-      // history.push(AppRoutes.ACCESS_DENIED);
+      localStorage.removeItem(LOCAL_STORAGE.session_id);
+      history.push(AppRoutes.ACCESS_DENIED);
     }
   }, [fetchImageFailed]);
 

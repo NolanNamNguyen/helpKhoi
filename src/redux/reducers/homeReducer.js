@@ -12,6 +12,7 @@ const initialState = {
   newImages: undefined,
   fetchNewImage: undefined,
   imageDetail: undefined,
+  loginFailed: undefined,
 };
 
 const reducer = (state = initialState, action) => {
@@ -82,19 +83,17 @@ const reducer = (state = initialState, action) => {
     case REQUEST(homeActions.LOGIN):
       return {
         ...state,
-        loadingMachineList: true,
       };
     case SUCCESS(homeActions.LOGIN):
       return {
         ...state,
         // listMachine: action.data,
-        loadingMachineList: false,
+        images: [],
       };
     case FAILED(homeActions.LOGIN):
       return {
         ...state,
-        // listMachine: undefined,
-        loadingMachineList: false,
+        loginFailed: action.error,
       };
     default:
       return state;

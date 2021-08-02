@@ -15,6 +15,7 @@ import {
   fetchImageDetailSuccess,
 } from '../actions/homeAction';
 import { homeActions } from '../constants/homeActions';
+import { setGlobalLoadingState } from '../actions/globalActions';
 import { LOCAL_STORAGE } from '../../constants/common';
 import { REQUEST } from '../constants/action-type';
 import Api from '../../core/api/apiConfig';
@@ -45,11 +46,14 @@ function* getMachineId() {
 function* login(data) {
   const { params, callback } = data;
   try {
+    yield put(setGlobalLoadingState(true));
     const response = yield Api.post('machine/login/', params);
     localStorage.setItem(LOCAL_STORAGE.session_id, response.data.sid);
     callback && callback();
     yield put(loginSuccess(response.data || ''));
+    yield put(setGlobalLoadingState(false));
   } catch (error) {
+    yield put(setGlobalLoadingState(false));
     yield put(loginlFailed(error.response.data || ''));
   }
 }

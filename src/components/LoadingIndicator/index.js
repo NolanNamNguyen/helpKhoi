@@ -7,17 +7,17 @@ const LoadingIndicator = ({ isLoading, loadingClass }) =>
     <>
       {loadingClass === 'loading-massive' && (
         <div className="loading-massive">
-          <Spinner />
+          <Spinner color="primary"/>
         </div>
       )}
       {loadingClass === 'loading-medium' && (
         <div className="loading-medium">
-          <Spinner />
+          <Spinner color="primary"/>
         </div>
       )}
       {loadingClass === 'loading-small' && (
         <div className="loading-small">
-          <Spinner />
+          <Spinner color="primary"/>
         </div>
       )}
     </>
