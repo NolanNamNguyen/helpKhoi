@@ -94,9 +94,10 @@ export const markDangerousFailed = (error) => ({
   error,
 });
 
-export const createSnapShot = (params) => ({
+export const createSnapShot = (params, callback) => ({
   type: REQUEST(homeActions.CREATE_SNAPSHOT),
   params,
+  callback,
 });
 
 export const createSnapShotSuccess = (data) => ({

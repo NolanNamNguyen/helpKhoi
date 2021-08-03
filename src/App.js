@@ -9,6 +9,7 @@ import 'font-awesome/css/font-awesome.min.css';
 
 const App = ({ globalReducer }) => {
   const { isLoading } = globalReducer;
+  console.log('2', isLoading);
   // const locate = useLocation();
   // const [isLoading, setIsLoading] = useState(false);
 

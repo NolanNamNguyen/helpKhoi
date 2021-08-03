@@ -1,9 +1,10 @@
+import uuid from 'uniqid'
 import { homeActions } from '../constants/homeActions';
 import { REQUEST, SUCCESS, FAILED } from '../constants/action-type';
 
 const initialState = {
   isLoading: false,
-  images: undefined,
+  images: [],
   listMachine: undefined,
   loadingMachineList: false,
   sessionId: undefined,
@@ -93,7 +94,7 @@ const reducer = (state = initialState, action) => {
     case FAILED(homeActions.LOGIN):
       return {
         ...state,
-        loginFailed: action.error,
+        loginFailed: { state: action.error, renderId: uuid() },
       };
     default:
       return state;

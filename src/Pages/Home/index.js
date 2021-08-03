@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { Menu, Input } from 'antd';
 import { useHistory } from 'react-router';
+import uuid from 'uniqid';
 import { CheckCircle } from 'react-feather';
 import * as AppRoutes from '../../router/router';
 import {
@@ -34,6 +35,7 @@ const HomePage = ({
   const { SubMenu } = Menu;
   const { images, fetchImageFailed, newImages } = homeReducer;
   const [imageIndex, _setImageIndex] = useState(0);
+  const [pageRenderKey, setPageRenderKey] = useState(111);
   const [noteRenderKey, setNoteRenderKey] = useState(0);
   const history = useHistory();
   const [fetchType, _setFetchType] = useState(1);
@@ -104,23 +106,41 @@ const HomePage = ({
   }, [images?.length]);
 
   useEffect(() => {
-    if (Number.isInteger(imageIndex) && imageIndex !== -1 && images && images.length) {
-      setNoteDefault(images[imageIndex].notes);
+    console.log('1111', Number.isInteger(imageIndex));
+    console.log(imageIndex);
+    console.log('1111', imageIndex !== -1);
+    console.log('1111', images);
+    console.log('1111', images?.length);
+
+    if (Number.isInteger(imageIndex) && imageIndex !== -1 && images && images.length && images[imageIndex]) {
+      console.log('im in');
+      setNoteDefault(images[imageIndex]?.notes);
       setTimeout(() => {
         setNoteRenderKey(imageIndex)
       }, 100);
       setImg1({
         path: images[imageIndex][`${upDownState.img1State}predicted_path`],
         normalPath: images[imageIndex][`${upDownState.img1State}image_path`],
-        imgAnnotation: images[imageIndex]?.side_annotations,
+        imgAnnotation: images[imageIndex][`${upDownState.img1State}annotations`],
       });
       setImg2({
         path: images[imageIndex][`${upDownState.img2State}predicted_path`],
         normalPath: images[imageIndex][`${upDownState.img2State}image_path`],
-        imgAnnotation: images[imageIndex]?.up_annotations,
+        imgAnnotation: images[imageIndex][`${upDownState.img2State}annotations`],
       });
+      return;
     }
-  }, [imageIndex, upDownState]);
+    setImg1({
+      path: 'assets/no-image.jpg',
+      nomalPath: 'assets/no-image.jpg',
+      imgAnnotation: '',
+    })
+    setImg2({
+      path: 'assets/no-image.jpg',
+      nomalPath: 'assets/no-image.jpg',
+      imgAnnotation: '',
+    })
+  }, [imageIndex, upDownState, images?.length, pageRenderKey]);
 
   const clearResult = () => {
     setPathAttr('normalPath');
@@ -162,7 +182,7 @@ const HomePage = ({
       pk: images[imageIndex].pk,
       ...updatedImg.image,
     }
-    setNoteDefault(images[imageIndex].notes);
+    setNoteDefault(images[imageIndex]?.notes);
     console.log('1');
     console.log(images[imageIndex]);
   };
@@ -188,7 +208,7 @@ const HomePage = ({
   };
 
   const handleClick = (data) => {
-    setCurrentLink(data.key);
+    setCurrentLink(data?.key);
   };
 
   const doLogout = () => {
@@ -200,7 +220,7 @@ const HomePage = ({
   return (
     <div className="width-100-per d-flex flex-column height-100-per">
       <Menu
-        onClick={handleClick}
+        onClick={() => { handleClick() }}
         selectedKeys={[currentLink]}
         mode="horizontal"
         className="position-relative menu-container"
@@ -234,6 +254,8 @@ const HomePage = ({
             onClick={() =>
               handleCreateSnapShot({
                 sid: localStorage.getItem(LOCAL_STORAGE.session_id),
+              }, () => {
+                setPageRenderKey(uuid());
               })
             }
             key="create_snap_shot"
@@ -267,18 +289,18 @@ const HomePage = ({
           Logout
         </Menu.Item>
         <h2 className="position-absolute width-100-per d-flex justify-content-center z-index--1">
-          Chick Trader
+          Deep Sniff
         </h2>
       </Menu>
       <div className="d-flex flex-column justify-content-center height-100-per">
 
         <div className="d-flex align-items-center justify-content-around widht-100-per">
           <div className="d-flex flex-column align-items-center width-41-per position-relative">
-            {images?.length && (
+            {images?.length ? (
               <h6 className="d-flex justify-content-center detected-text date-time-background">
-                {images[imageIndex].stamped_time}
+                {images[imageIndex]?.stamped_time}
               </h6>
-            )}
+            ) : ''}
             <img
               className="width-100-per"
               src={
@@ -286,37 +308,37 @@ const HomePage = ({
               }
               alt=" not found"
             />
-            {img1?.imgAnnotation && img1?.imgAnnotation !== DETECTED_NOTHING && (
+            {img1?.imgAnnotation && img1?.imgAnnotation !== DETECTED_NOTHING ? (
               <h6 className="position-absolute ps-b--32 detected-text">
                 {img1?.imgAnnotation}
               </h6>
-            )}
+            ) : ''}
           </div>
           <div className="width-10-per height-100-per min-width-by-px-90 justify-content-center d-flex flex-column">
             <Button
-              onClick={decline}
+              onClick={() => { decline() }}
               type="button"
               className="m-b-20"
               color="danger"
             >
-              {images?.length && images[imageIndex].danger < 0 && (
+              {images?.length && images[imageIndex]?.danger < 0 ? (
                 <CheckCircle className="m-r-6 m-b-2" size="16" />
-              )}
+              ) : ''}
               Decline
             </Button>
             <Button
-              onClick={approve}
+              onClick={() => { approve() }}
               type="button"
               className="m-b-20"
               color="success"
             >
-              {images?.length && images[imageIndex].danger > 0 && (
+              {images?.length && images[imageIndex]?.danger > 0 ? (
                 <CheckCircle className="m-r-6 m-b-2" size="16" />
-              )}
+              ) : ''}
               Approved
             </Button>
             <Button
-              onClick={handleSwitch}
+              onClick={() => { handleSwitch() }}
               type="button"
               className="m-b-20"
               color="info"
@@ -324,8 +346,8 @@ const HomePage = ({
               Switch
             </Button>
             <Button
-              onMouseDown={clearResult}
-              onMouseUp={handleRelease}
+              onMouseDown={() => { clearResult() }}
+              onMouseUp={() => { handleRelease() }}
               type="button"
               className="m-b-20"
               color="primary"
@@ -333,7 +355,7 @@ const HomePage = ({
               Clear Result
             </Button>
             <Button
-              onClick={prev}
+              onClick={() => { prev() }}
               type="button"
               className="m-b-20"
               color="danger"
@@ -343,7 +365,7 @@ const HomePage = ({
               Prev
             </Button>
             <Button
-              onClick={next}
+              onClick={() => { next() }}
               type="button"
               className="m-b-20"
               color="primary"
@@ -357,11 +379,11 @@ const HomePage = ({
           </div>
 
           <div className="d-flex flex-column align-items-center width-41-per position-relative">
-            {images?.length && (
+            {images?.length ? (
               <h6 className="d-flex justify-content-center detected-text date-time-background">
-                {images[imageIndex].stamped_time}
+                {images[imageIndex]?.stamped_time}
               </h6>
-            )}
+            ) : ''}
             <img
               className="width-100-per"
               src={
@@ -369,11 +391,11 @@ const HomePage = ({
               }
               alt=" not found"
             />
-            {img2?.imgAnnotation && img2?.imgAnnotation !== DETECTED_NOTHING && (
+            {img2?.imgAnnotation && img2?.imgAnnotation !== DETECTED_NOTHING ? (
               <h6 className="position-absolute ps-b--32 detected-text">
                 {img2?.imgAnnotation}
               </h6>
-            )}
+            ) : ''}
           </div>
         </div>
       </div>
@@ -390,7 +412,7 @@ const mapDispatchToProps = (dispatch) => ({
   handleLogout: (params, callback) => dispatch(logout(params, callback)),
   handleChangeDanger: (params, callback) =>
     dispatch(markDangerous(params, callback)),
-  handleCreateSnapShot: (params) => dispatch(createSnapShot(params)),
+  handleCreateSnapShot: (params, callback) => dispatch(createSnapShot(params, callback)),
   handleFetchImageDetail: (params, callback) => dispatch(fetchImageDetail(params, callback)),
 });
 

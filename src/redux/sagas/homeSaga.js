@@ -22,8 +22,10 @@ import Api from '../../core/api/apiConfig';
 
 function* getImages(data) {
   const { params } = data;
+  console.log('123', params);
   try {
     const response = yield Api.post('machine/fetch_images/', params);
+    console.log('response', response.data.images);
     params.fetch_all
       ? yield put(getAllImageSuccess(response.data.images))
       : yield put(getNewImageSuccess(response.data.images));
@@ -53,6 +55,7 @@ function* login(data) {
     yield put(loginSuccess(response.data || ''));
     yield put(setGlobalLoadingState(false));
   } catch (error) {
+    console.log(error.response);
     yield put(setGlobalLoadingState(false));
     yield put(loginlFailed(error.response.data || ''));
   }
@@ -70,9 +73,10 @@ function* handleChangeDanger(data) {
 }
 
 function* createSnapShot(data) {
-  const { params } = data;
+  const { params, callback } = data;
   try {
     const response = yield Api.post('machine/create_snapshot/', params);
+    callback && callback();
     yield put(markDangerousSuccess(response.data || ''));
   } catch (error) {
     yield put(markDangerousFailed(error.response?.data || ''));

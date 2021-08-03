@@ -31,11 +31,11 @@ const Login = ({ handleLogin, handleGetListMachine, homeReducer }) => {
   }, []);
 
   useEffect(() => {
-    if (loginFailed) {
+    if (loginFailed?.state) {
       console.log(loginFailed);
       setWrongPassword('Your password is wrong');
     }
-  }, [loginFailed]);
+  }, [loginFailed?.renderId]);
 
   useEffect(() => {
     machine && setSelectedMachineError(false);
@@ -87,7 +87,7 @@ const Login = ({ handleLogin, handleGetListMachine, homeReducer }) => {
         className="login-form p-a-20 d-flex flex-column align-items-center"
         onFinish={handleSubmit(submitLogin)}
       >
-        <h3 className="m-b-38">High quality chick trader community</h3>
+        <h3 className="m-b-38">Deep Sniff System</h3>
         <Form.Item className="width-70-per">
           <Select
             className={`${selectedMachineError ? 'error-select' : ''}`}
@@ -111,7 +111,10 @@ const Login = ({ handleLogin, handleGetListMachine, homeReducer }) => {
 
         <Form.Item className="width-70-per" label="Password">
           <Input
-            className={`${errors?.password?.message ? 'error-field' : ''}`}
+            className={`${errors?.password?.message || wrongPassword ? 'error-field' : ''}`}
+            onKeyDown={() => {
+              setWrongPassword('');
+            }}
             type="password"
             {...register('password')}
           />
