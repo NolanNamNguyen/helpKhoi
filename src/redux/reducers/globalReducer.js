@@ -7,7 +7,6 @@ const initialState = {
 const reducer = (state = initialState, action) => {
   switch (action.type) {
     case globalActions.SET_LOADING_STATE:
-      console.log('1', action.data);
       return {
         ...state,
         isLoading: action.data,

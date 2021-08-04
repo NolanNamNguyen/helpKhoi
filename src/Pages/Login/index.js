@@ -32,7 +32,6 @@ const Login = ({ handleLogin, handleGetListMachine, homeReducer }) => {
 
   useEffect(() => {
     if (loginFailed?.state) {
-      console.log(loginFailed);
       setWrongPassword('Your password is wrong');
     }
   }, [loginFailed?.renderId]);

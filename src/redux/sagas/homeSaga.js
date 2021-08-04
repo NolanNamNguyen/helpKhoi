@@ -22,13 +22,14 @@ import Api from '../../core/api/apiConfig';
 
 function* getImages(data) {
   const { params } = data;
-  console.log('123', params);
   try {
     const response = yield Api.post('machine/fetch_images/', params);
-    console.log('response', response.data.images);
-    params.fetch_all
-      ? yield put(getAllImageSuccess(response.data.images))
-      : yield put(getNewImageSuccess(response.data.images));
+    if (response.data.images.length) {
+      params.fetch_all
+        ? yield put(getAllImageSuccess(response.data.images))
+        : yield put(getNewImageSuccess(response.data.images));
+    }
+
   } catch (error) {
     params.fetch_all
       ? yield put(getAllImageFailed(error?.response?.data || 'Error'))
@@ -55,7 +56,6 @@ function* login(data) {
     yield put(loginSuccess(response.data || ''));
     yield put(setGlobalLoadingState(false));
   } catch (error) {
-    console.log(error.response);
     yield put(setGlobalLoadingState(false));
     yield put(loginlFailed(error.response.data || ''));
   }
@@ -99,14 +99,19 @@ function* logout(data) {
   try {
     // eslint-disable-next-line no-unused-vars
     const response = yield Api.post('machine/logout/', { sid: params });
-    yield put(getAllImageSuccess(undefined))
-    yield put(getNewImageSuccess(undefined));
+    yield put(getAllImageSuccess(undefined));
     localStorage.removeItem(LOCAL_STORAGE.session_id);
-    callback && callback();
+    setTimeout(() => {
+      callback && callback();
+    }, 100);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log(error);
   }
+}
+
+function* handleAddNewImage(data) {
+  const { image } = data;
 }
 
 function* homeSaga() {
@@ -118,6 +123,7 @@ function* homeSaga() {
     takeEvery(REQUEST(homeActions.GET_MACHINE_ID), getMachineId),
     takeEvery(REQUEST(homeActions.CREATE_SNAPSHOT), createSnapShot),
     takeEvery(REQUEST(homeActions.FETCH_IMAGE_DETAIL), getImageDetail),
+    takeEvery(REQUEST(homeActions.ADD_NEW_IMAGE), handleAddNewImage),
   ]);
 }
 

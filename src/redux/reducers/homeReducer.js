@@ -54,9 +54,11 @@ const reducer = (state = initialState, action) => {
         isLoading: false,
       };
     case SUCCESS(homeActions.GET_NEW_IMAGE):
+      action.data?.forEach(img => {
+        state.images.push(img);
+      });
       return {
         ...state,
-        newImages: action.data,
       };
     case FAILED(homeActions.GET_NEW_IMAGE):
       return {
@@ -95,6 +97,11 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         loginFailed: { state: action.error, renderId: uuid() },
+      };
+    case REQUEST(homeActions.RESET_ERROR_STATE):
+      return {
+        ...state,
+        fetchImageFailed: undefined,
       };
     default:
       return state;

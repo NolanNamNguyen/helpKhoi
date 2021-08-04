@@ -20,6 +20,7 @@ import {
   markDangerous,
   createSnapShot,
   fetchImageDetail,
+  resetErrorState,
 } from '../../redux/actions/homeAction';
 
 const HomePage = ({
@@ -29,11 +30,12 @@ const HomePage = ({
   handleChangeDanger,
   handleCreateSnapShot,
   handleFetchImageDetail,
+  handleresetError,
 }) => {
   const [noteDefault, setNoteDefault] = useState('');
   const { TextArea } = Input;
   const { SubMenu } = Menu;
-  const { images, fetchImageFailed, newImages } = homeReducer;
+  const { images, fetchImageFailed } = homeReducer;
   const [imageIndex, _setImageIndex] = useState(0);
   const [pageRenderKey, setPageRenderKey] = useState(111);
   const [noteRenderKey, setNoteRenderKey] = useState(0);
@@ -88,16 +90,9 @@ const HomePage = ({
     if (fetchImageFailed) {
       localStorage.removeItem(LOCAL_STORAGE.session_id);
       history.push(AppRoutes.ACCESS_DENIED);
+      handleresetError();
     }
   }, [fetchImageFailed]);
-
-  useEffect(() => {
-    if (newImages?.length) {
-      newImages.forEach((img) => {
-        images.push(img);
-      });
-    }
-  }, [newImages]);
 
   useEffect(() => {
     if (images && images.length) {
@@ -106,14 +101,7 @@ const HomePage = ({
   }, [images?.length]);
 
   useEffect(() => {
-    console.log('1111', Number.isInteger(imageIndex));
-    console.log(imageIndex);
-    console.log('1111', imageIndex !== -1);
-    console.log('1111', images);
-    console.log('1111', images?.length);
-
     if (Number.isInteger(imageIndex) && imageIndex !== -1 && images && images.length && images[imageIndex]) {
-      console.log('im in');
       setNoteDefault(images[imageIndex]?.notes);
       setTimeout(() => {
         setNoteRenderKey(imageIndex)
@@ -183,8 +171,6 @@ const HomePage = ({
       ...updatedImg.image,
     }
     setNoteDefault(images[imageIndex]?.notes);
-    console.log('1');
-    console.log(images[imageIndex]);
   };
 
   const handleSwitch = () => {
@@ -409,6 +395,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   handleGetDeviceDetail: (params) => dispatch(getImage(params)),
+  handleresetError: (params) => dispatch(resetErrorState(params)),
   handleLogout: (params, callback) => dispatch(logout(params, callback)),
   handleChangeDanger: (params, callback) =>
     dispatch(markDangerous(params, callback)),

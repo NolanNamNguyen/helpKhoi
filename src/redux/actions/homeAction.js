@@ -125,3 +125,12 @@ export const fetchImageDetailFailed = (error) => ({
   type: FAILED(homeActions.FETCH_IMAGE_DETAIL),
   error,
 });
+
+export const pushNewImage = (image) => ({
+  type: REQUEST(homeActions.ADD_NEW_IMAGE),
+  image,
+});
+
+export const resetErrorState = () => ({
+  type: REQUEST(homeActions.RESET_ERROR_STATE),
+});
