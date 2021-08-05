@@ -13,6 +13,7 @@ import {
   markDangerousFailed,
   fetchImageDetailFailed,
   fetchImageDetailSuccess,
+  resetImages,
 } from '../actions/homeAction';
 import { homeActions } from '../constants/homeActions';
 import { setGlobalLoadingState } from '../actions/globalActions';
@@ -28,8 +29,10 @@ function* getImages(data) {
       params.fetch_all
         ? yield put(getAllImageSuccess(response.data.images))
         : yield put(getNewImageSuccess(response.data.images));
+      return;
     }
-
+    console.log('1');
+    yield put(resetImages());
   } catch (error) {
     params.fetch_all
       ? yield put(getAllImageFailed(error?.response?.data || 'Error'))
@@ -75,7 +78,7 @@ function* handleChangeDanger(data) {
 function* createSnapShot(data) {
   const { params, callback } = data;
   try {
-    const response = yield Api.post('machine/create_snapshot/', params);
+    const response = yield Api.post('', params, {}, process.env.REACT_APP_ENDPOINT_SNAPSHOT);
     callback && callback();
     yield put(markDangerousSuccess(response.data || ''));
   } catch (error) {

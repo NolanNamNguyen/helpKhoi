@@ -134,3 +134,7 @@ export const pushNewImage = (image) => ({
 export const resetErrorState = () => ({
   type: REQUEST(homeActions.RESET_ERROR_STATE),
 });
+
+export const resetImages = () => ({
+  type: REQUEST(homeActions.RESET_IMAGES),
+});

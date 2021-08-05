@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { Menu, Input } from 'antd';
 import { useHistory } from 'react-router';
-import uuid from 'uniqid';
+import uuid, { process } from 'uniqid';
 import { CheckCircle } from 'react-feather';
 import * as AppRoutes from '../../router/router';
 import {
@@ -13,6 +13,7 @@ import {
   IMAGE_ENDPOINT,
   FETCH_IMAGE_TYPE,
   DETECTED_NOTHING,
+  INTERVALtIME,
 } from '../../constants/common';
 import {
   getImage,
@@ -35,7 +36,7 @@ const HomePage = ({
   const [noteDefault, setNoteDefault] = useState('');
   const { TextArea } = Input;
   const { SubMenu } = Menu;
-  const { images, fetchImageFailed } = homeReducer;
+  const { images, fetchImageFailed, resetAlert } = homeReducer;
   const [imageIndex, _setImageIndex] = useState(0);
   const [pageRenderKey, setPageRenderKey] = useState(111);
   const [noteRenderKey, setNoteRenderKey] = useState(0);
@@ -59,10 +60,14 @@ const HomePage = ({
   const fetchRef = useRef(fetchType);
   const submitComment = useRef(undefined);
   const [pathAttr, setPathAttr] = useState('path');
+  const intervalFetchRef = useRef(undefined);
 
   const setFetchType = (data) => {
     _setFetchType(data);
     fetchRef.current = data;
+    if (!intervalFetchRef.current) {
+      createInterval();
+    }
   };
 
   const setImageIndex = (data) => {
@@ -75,16 +80,36 @@ const HomePage = ({
       sid: localStorage.getItem(LOCAL_STORAGE.session_id),
       fetch_all: fetchRef.current,
     });
-    const intervalFetchImage = setInterval(() => {
+    createInterval();
+    return () => {
+      clearInterval(intervalFetchRef.current);
+    };
+  }, []);
+
+  const createInterval = () => {
+    intervalFetchRef.current = setInterval(() => {
       handleGetDeviceDetail({
         sid: localStorage.getItem(LOCAL_STORAGE.session_id),
         fetch_all: fetchRef.current,
       });
-    }, 5000);
-    return () => {
-      clearInterval(intervalFetchImage);
-    };
-  }, []);
+    }, INTERVALtIME);
+  }
+
+
+  useEffect(() => {
+    if (resetAlert) {
+      setImg1({
+        path: 'assets/no-image.jpg',
+        nomalPath: 'assets/no-image.jpg',
+        imgAnnotation: '',
+      })
+      setImg2({
+        path: 'assets/no-image.jpg',
+        nomalPath: 'assets/no-image.jpg',
+        imgAnnotation: '',
+      })
+    }
+  }, [resetAlert])
 
   useEffect(() => {
     if (fetchImageFailed) {
@@ -185,6 +210,12 @@ const HomePage = ({
     }
   };
 
+  const clearFetchIntervel = (params) => {
+    clearInterval(intervalFetchRef.current);
+    intervalFetchRef.current = undefined;
+  }
+
+
   const prev = () => {
     imageIndex - 1 >= 0 && setImageIndex(imageIndex - 1);
   };
@@ -234,6 +265,18 @@ const HomePage = ({
                 <CheckCircle size={15} />
               )}
               <span className="m-l-5">Load only new</span>
+            </div>
+          </Menu.Item>
+          <Menu.Item
+            onClick={() => {
+              setFetchType(FETCH_IMAGE_TYPE.STOP_FETCH);
+              clearFetchIntervel();
+            }}
+            key="stopFetch"
+          >
+            <div>
+              {fetchType === FETCH_IMAGE_TYPE.STOP_FETCH && <CheckCircle size={15} />}
+              <span className="m-l-5">Stop Fetch</span>
             </div>
           </Menu.Item>
           <Menu.Item

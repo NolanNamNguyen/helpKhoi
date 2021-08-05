@@ -14,6 +14,7 @@ const initialState = {
   fetchNewImage: undefined,
   imageDetail: undefined,
   loginFailed: undefined,
+  resetAlert: undefined,
 };
 
 const reducer = (state = initialState, action) => {
@@ -102,6 +103,12 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         fetchImageFailed: undefined,
+      };
+    case REQUEST(homeActions.RESET_IMAGES):
+      return {
+        ...state,
+        images: [],
+        resetAlert: uuid(),
       };
     default:
       return state;

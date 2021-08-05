@@ -1,4 +1,7 @@
 .login-form-container {
+  background-image: url("/images/among-us.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
   form {
     width: 30%;
   }
@@ -37,5 +40,6 @@
 
 .login-form {
   border: solid 1px black;
+  background-color: white;
   // background: linear-gradient(to right, rgb(170, 75, 107), rgb(107, 107, 131), rgb(59, 141, 153));
 }

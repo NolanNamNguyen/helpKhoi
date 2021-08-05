@@ -22,14 +22,18 @@ const LOCAL_STORAGE = {
 const FETCH_IMAGE_TYPE = {
   ALL: 1,
   ONLY_NEW: 0,
+  STOP_FETCH: 2,
 };
 
 const DETECTED_NOTHING = 'Detected nothing';
+
+const INTERVALtIME = process.env.REACT_APP_INTERVAL_TIME;
 
 const IMAGE_ENDPOINT = process.env.REACT_APP_ENDPOINT_IMAGE;
 
 export {
   PROBLEM_LEVEL,
+  INTERVALtIME,
   LEVEL_TITLE,
   APP_ROLE,
   LOCAL_STORAGE,
