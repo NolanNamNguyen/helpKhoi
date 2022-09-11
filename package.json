@@ -1,5 +1,5 @@
 {
-  "name": "scl-streaming-chatlike-fe",
+  "name": "deep-sniff-fe",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -31,6 +31,7 @@
     "react-helmet": "6.1.0",
     "react-hook-form": "7.12.0",
     "react-redux": "7.2.3",
+    "react-router": "^5.2.1",
     "react-router-dom": "5.2.0",
     "react-scripts": "4.0.3",
     "react-select": "4.3.0",
