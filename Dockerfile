@@ -7,6 +7,8 @@ COPY package-lock.json ./
 RUN npm ci --silent
 RUN npm install react-scripts@3.4.1 -g --silent
 COPY . ./
+ARG REACT_APP_ENDPOINT
+ENV REACT_APP_ENDPOINT $REACT_APP_ENDPOINT
 RUN npm run build
 
 # production environment
