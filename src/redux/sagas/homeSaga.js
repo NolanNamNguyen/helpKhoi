@@ -31,7 +31,6 @@ function* getImages(data) {
         : yield put(getNewImageSuccess(response.data.images));
       return;
     }
-    console.log('1');
     yield put(resetImages());
   } catch (error) {
     params.fetch_all
